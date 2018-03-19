@@ -40,14 +40,14 @@ blink::SemanticsAction GetSemanticsActionForScrollDirection(
   return blink::SemanticsAction::kScrollUp;
 }
 
-NSComparisonResult IntToComparisonResult(int32_t value) {
-  if (value > 0)
-    return (NSComparisonResult)NSOrderedDescending;
-  if (value < 0)
-    return (NSComparisonResult)NSOrderedAscending;
-
-  return (NSComparisonResult)NSOrderedSame;
-}
+//NSComparisonResult IntToComparisonResult(int32_t value) {
+//  if (value > 0)
+//    return (NSComparisonResult)NSOrderedDescending;
+//  if (value < 0)
+//    return (NSComparisonResult)NSOrderedAscending;
+//
+//  return (NSComparisonResult)NSOrderedSame;
+//}
 
 }  // namespace
 
@@ -164,8 +164,8 @@ NSComparisonResult IntToComparisonResult(int32_t value) {
   // Note: hit detection will only apply to elements that report
   // -isAccessibilityElement of YES. The framework will continue scanning the
   // entire element tree looking for such a hit.
-  return [self node].flags != 0 || ![self node].label.empty() || ![self node].value.empty() ||
-         ![self node].hint.empty() ||
+  return ([self node].flags != 0 && [self node].flags != static_cast<int32_t>(blink::SemanticsFlags::kIsHidden)) ||
+         ![self node].label.empty() || ![self node].value.empty() || ![self node].hint.empty() ||
          ([self node].actions & ~blink::kScrollableSemanticsActions) != 0;
 }
 
@@ -188,11 +188,18 @@ NSComparisonResult IntToComparisonResult(int32_t value) {
 }
 
 - (CGRect)accessibilityFrame {
+  if ([self node].HasFlag(blink::SemanticsFlags::kIsHidden)) {
+    return [super accessibilityFrame];
+  }
+  return [self globalRect];
+}
+
+- (CGRect) globalRect {
   SkMatrix44 globalTransform = [self node].transform;
   for (SemanticsObject* parent = [self parent]; parent; parent = parent.parent) {
     globalTransform = parent.node.transform * globalTransform;
   }
-
+  
   SkPoint quad[4];
   [self node].rect.toQuad(quad);
   for (auto& point : quad) {
@@ -202,13 +209,13 @@ NSComparisonResult IntToComparisonResult(int32_t value) {
   }
   SkRect rect;
   rect.set(quad, 4);
-
+  
   // `rect` is in the physical pixel coordinate system. iOS expects the accessibility frame in
   // the logical pixel coordinate system. Therefore, we divide by the `scale` (pixel ratio) to
   // convert.
   CGFloat scale = [[[self bridge] -> view() window] screen].scale;
   auto result =
-      CGRectMake(rect.x() / scale, rect.y() / scale, rect.width() / scale, rect.height() / scale);
+  CGRectMake(rect.x() / scale, rect.y() / scale, rect.width() / scale, rect.height() / scale);
   return UIAccessibilityConvertFrameToScreenCoordinates(result, [self bridge] -> view());
 }
 
@@ -264,6 +271,10 @@ NSComparisonResult IntToComparisonResult(int32_t value) {
 #pragma mark UIAccessibilityFocus overrides
 
 - (void)accessibilityElementDidBecomeFocused {
+  NSLog(@"Focused: %d, %@", [self uid], [self accessibilityLabel]);
+  if ([self node].HasFlag(blink::SemanticsFlags::kIsHidden)) {
+    [self bridge] -> DispatchSemanticsAction([self uid], blink::SemanticsAction::kShowOnScreen);
+  }
   if ([self node].HasAction(blink::SemanticsAction::kDidGainAccessibilityFocus)) {
     [self bridge] -> DispatchSemanticsAction([self uid],
                                              blink::SemanticsAction::kDidGainAccessibilityFocus);
@@ -467,26 +478,26 @@ void AccessibilityBridge::UpdateSemantics(blink::SemanticsNodeUpdates nodes) {
       SemanticsObject* child = GetOrCreateObject(node.children[i], nodes);
       child.parent = object;
       // Reverting to get hit testing order (as tie breaker for sorting below).
-      newChildren[newChildCount - i - 1] = child;
+      newChildren[i] = child;
     }
 
-    [childOrdersToUpdate addObject:object];
-    if (object.parent)
-      [childOrdersToUpdate addObject:object.parent];
+//    [childOrdersToUpdate addObject:object];
+//    if (object.parent)
+//      [childOrdersToUpdate addObject:object.parent];
   }
 
   // Bring children into traversal order.
-  for (SemanticsObject* object in childOrdersToUpdate) {
-    [object.children sortUsingComparator:^(SemanticsObject* a, SemanticsObject* b) {
-      // Should a go before b?
-      CGRect rectA = [a accessibilityFrame];
-      CGRect rectB = [b accessibilityFrame];
-      CGFloat top = rectA.origin.y - rectB.origin.y;
-      if (top == 0.0)
-        return IntToComparisonResult(rectA.origin.x - rectB.origin.x < 0.0);
-      return IntToComparisonResult(top);
-    }];
-  }
+//  for (SemanticsObject* object in childOrdersToUpdate) {
+//    [object.children sortUsingComparator:^(SemanticsObject* a, SemanticsObject* b) {
+//      // Should a go before b?
+//      CGRect rectA = [a globalRect];
+//      CGRect rectB = [b globalRect];
+//      CGFloat top = rectA.origin.y - rectB.origin.y;
+//      if (top == 0.0)
+//        return IntToComparisonResult(rectA.origin.x - rectB.origin.x < 0.0);
+//      return IntToComparisonResult(top);
+//    }];
+//  }
 
   [childOrdersToUpdate release];
 

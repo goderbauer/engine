@@ -224,6 +224,7 @@ class SemanticsFlag {
   static const int _kIsEnabledIndex = 1 << 7;
   static const int _kIsInMutuallyExclusiveGroupIndex = 1 << 8;
   static const int _kIsHeaderIndex = 1 << 9;
+  static const int _kIsHiddenIndex = 1 << 11;
 
   const SemanticsFlag._(this.index);
 
@@ -300,6 +301,8 @@ class SemanticsFlag {
   /// address book applications.
   static const SemanticsFlag isHeader = const SemanticsFlag._(_kIsHeaderIndex);
 
+  static const SemanticsFlag isHidden = const SemanticsFlag._(_kIsHiddenIndex);
+
   /// The possible semantics flags.
   ///
   /// The map's key is the [index] of the flag and the value is the flag itself.
@@ -314,6 +317,7 @@ class SemanticsFlag {
     _kIsEnabledIndex: isEnabled,
     _kIsInMutuallyExclusiveGroupIndex: isInMutuallyExclusiveGroup,
     _kIsHeaderIndex: isHeader,
+    _kIsHiddenIndex: isHidden,
   };
 
   @override
@@ -339,6 +343,8 @@ class SemanticsFlag {
         return 'SemanticsFlag.isInMutuallyExclusiveGroup';
       case _kIsHeaderIndex:
         return 'SemanticsFlag.isHeader';
+      case _kIsHiddenIndex:
+        return 'SemanticsFlag.isHidden';
     }
     return null;
   }
