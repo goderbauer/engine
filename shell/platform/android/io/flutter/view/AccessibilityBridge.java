@@ -84,7 +84,8 @@ class AccessibilityBridge extends AccessibilityNodeProvider implements BasicMess
         HAS_ENABLED_STATE(1 << 6),
         IS_ENABLED(1 << 7),
         IS_IN_MUTUALLY_EXCLUSIVE_GROUP(1 << 8),
-        IS_HEADER(1 << 9);
+        IS_HEADER(1 << 9),
+        IS_HIDDEN(1 << 11);
 
         Flag(int value) {
             this.value = value;
@@ -256,7 +257,9 @@ class AccessibilityBridge extends AccessibilityNodeProvider implements BasicMess
 
         if (object.children != null) {
             for (SemanticsObject child : object.children) {
-                result.addChild(mOwner, child.id);
+                if (!child.hasFlag(Flag.IS_HIDDEN)) {
+                    result.addChild(mOwner, child.id);
+                }
             }
         }
 
@@ -464,9 +467,10 @@ class AccessibilityBridge extends AccessibilityNodeProvider implements BasicMess
         while (buffer.hasRemaining()) {
             int id = buffer.getInt();
             SemanticsObject object = getOrCreateObject(id);
-            boolean hadCheckedState = object.hasFlag(Flag.HAS_CHECKED_STATE);
-            boolean wasChecked = object.hasFlag(Flag.IS_CHECKED);
             object.updateWith(buffer, strings);
+            if (object.hasFlag(Flag.IS_HIDDEN)) {
+                continue;
+            }
             if (object.hasFlag(Flag.IS_FOCUSED)) {
                 mInputFocusedObject = object;
             }
@@ -859,6 +863,9 @@ class AccessibilityBridge extends AccessibilityNodeProvider implements BasicMess
                 final float[] transformedPoint = new float[4];
                 for (int i = children.size() - 1; i >= 0; i -= 1) {
                     final SemanticsObject child = children.get(i);
+                    if (child.hasFlag(Flag.IS_HIDDEN)) {
+                        continue;
+                    }
                     child.ensureInverseTransform();
                     Matrix.multiplyMV(transformedPoint, 0, child.inverseTransform, 0, point, 0);
                     final SemanticsObject result = child.hitTest(transformedPoint);
