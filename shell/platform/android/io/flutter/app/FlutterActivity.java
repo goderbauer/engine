@@ -21,7 +21,7 @@ import io.flutter.view.FlutterView;
  */
 public class FlutterActivity extends Activity implements FlutterView.Provider, PluginRegistry, ViewFactory {
     private static final String TAG = "FlutterActivity";
-    
+
     private final FlutterActivityDelegate delegate = new FlutterActivityDelegate(this, this);
 
     // These aliases ensure that the methods we forward to the delegate adhere
@@ -85,6 +85,7 @@ public class FlutterActivity extends Activity implements FlutterView.Provider, P
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("bla", "Hello");
         super.onCreate(savedInstanceState);
         eventDelegate.onCreate(savedInstanceState);
     }

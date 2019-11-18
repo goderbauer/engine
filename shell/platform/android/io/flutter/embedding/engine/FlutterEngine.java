@@ -31,6 +31,7 @@ import io.flutter.embedding.engine.systemchannels.PlatformChannel;
 import io.flutter.embedding.engine.systemchannels.SettingsChannel;
 import io.flutter.embedding.engine.systemchannels.SystemChannel;
 import io.flutter.embedding.engine.systemchannels.TextInputChannel;
+import io.flutter.embedding.engine.systemchannels.InstanceStateChannel;
 import io.flutter.plugin.platform.PlatformViewsController;
 
 /**
@@ -96,6 +97,8 @@ public class FlutterEngine {
   private final SystemChannel systemChannel;
   @NonNull
   private final TextInputChannel textInputChannel;
+  @NonNull
+  private final InstanceStateChannel instanceStateChannel;
 
   // Platform Views.
   @NonNull
@@ -201,6 +204,7 @@ public class FlutterEngine {
     settingsChannel = new SettingsChannel(dartExecutor);
     systemChannel = new SystemChannel(dartExecutor);
     textInputChannel = new TextInputChannel(dartExecutor);
+    instanceStateChannel = new InstanceStateChannel(dartExecutor);
 
     platformViewsController = new PlatformViewsController();
 
@@ -376,6 +380,11 @@ public class FlutterEngine {
   @NonNull
   public SystemChannel getSystemChannel() {
     return systemChannel;
+  }
+
+  @NonNull
+  public InstanceStateChannel getInstanceStateChannel() {
+    return instanceStateChannel;
   }
 
   /**

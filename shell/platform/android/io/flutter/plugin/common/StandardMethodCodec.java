@@ -18,7 +18,7 @@ import java.nio.ByteOrder;
  * <p>Values supported as method arguments and result payloads are those supported by
  * {@link StandardMessageCodec}.</p>
  */
-public final class StandardMethodCodec implements MethodCodec {
+public class StandardMethodCodec implements MethodCodec {
     public static final StandardMethodCodec INSTANCE = new StandardMethodCodec(StandardMessageCodec.INSTANCE);
     private final StandardMessageCodec messageCodec;
 

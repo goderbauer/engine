@@ -13,7 +13,7 @@ import io.flutter.BuildConfig;
  * internally filters logs based on a {@link #logLevel}.
  */
 public class Log {
-  private static int logLevel = android.util.Log.DEBUG;
+  private static int logLevel = android.util.Log.VERBOSE;
 
   /**
    * Sets a log cutoff such that a log level of lower priority than {@code logLevel} is

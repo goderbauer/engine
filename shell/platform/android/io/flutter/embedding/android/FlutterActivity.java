@@ -417,6 +417,7 @@ public class FlutterActivity extends Activity
     delegate = new FlutterActivityAndFragmentDelegate(this);
     delegate.onAttach(this);
     delegate.onActivityCreated(savedInstanceState);
+    Log.d("bla", "Hello123");
 
     configureWindowForTransparency();
     setContentView(createFlutterView());

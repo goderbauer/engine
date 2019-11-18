@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import java.nio.ByteBuffer;
 import java.util.Arrays;
 
 import io.flutter.Log;
@@ -259,11 +260,21 @@ import static android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW;
   }
 
   void onActivityCreated(@Nullable Bundle bundle) {
-    Log.v(TAG, "onActivityCreated. Giving plugins an opportunity to restore state.");
+    Log.d(TAG, "onActivityCreated. Giving plugins an opportunity to restore state 123.");
     ensureAlive();
 
+    Bundle pluginsState = null;
+    byte[] frameworkState = null;
+
+    if (bundle != null) {
+      frameworkState = bundle.getByteArray("framework");
+      pluginsState = bundle.getBundle("plugins");
+    }
+
+    flutterEngine.getInstanceStateChannel().setInstanceState(frameworkState);
+
     if (host.shouldAttachEngineToActivity()) {
-      flutterEngine.getActivityControlSurface().onRestoreInstanceState(bundle);
+      flutterEngine.getActivityControlSurface().onRestoreInstanceState(pluginsState);
     }
   }
 
@@ -327,6 +338,9 @@ import static android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW;
     if (host.getInitialRoute() != null) {
       flutterEngine.getNavigationChannel().setInitialRoute(host.getInitialRoute());
     }
+//    flutterEngine.getNavigationChannel().setInitialRoute("fooobnar");
+
+//    flutterEngine.getInstanceStateChannel().sendInstanceState(null);
 
     // Configure the Dart entrypoint and execute it.
     DartExecutor.DartEntrypoint entrypoint = new DartExecutor.DartEntrypoint(
@@ -418,8 +432,12 @@ import static android.content.ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW;
     Log.v(TAG, "onSaveInstanceState. Giving plugins an opportunity to save state.");
     ensureAlive();
 
+    bundle.putByteArray("framework", flutterEngine.getInstanceStateChannel().getInstanceState());
+    final Bundle plugins = new Bundle();
+    bundle.putBundle("plugins", plugins);
+
     if (host.shouldAttachEngineToActivity()) {
-      flutterEngine.getActivityControlSurface().onSaveInstanceState(bundle);
+      flutterEngine.getActivityControlSurface().onSaveInstanceState(plugins);
     }
   }
 
