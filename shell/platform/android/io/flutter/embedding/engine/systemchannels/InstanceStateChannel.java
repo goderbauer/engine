@@ -7,22 +7,11 @@ package io.flutter.embedding.engine.systemchannels;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-
-import java.nio.ByteOrder;
-import java.util.HashMap;
-import java.util.Map;
 import java.nio.ByteBuffer;
 
-import io.flutter.Log;
 import io.flutter.embedding.engine.dart.DartExecutor;
 import io.flutter.plugin.common.BasicMessageChannel;
-import io.flutter.plugin.common.JSONMessageCodec;
 import io.flutter.plugin.common.BinaryCodec;
-import io.flutter.plugin.common.MethodCall;
-import io.flutter.plugin.common.MethodChannel;
-import io.flutter.plugin.common.StandardMessageCodec;
-import io.flutter.plugin.common.StandardMethodCodec;
-
 
 /**
  * TODO(mattcarroll): fill in javadoc for SystemChannel.
@@ -30,45 +19,34 @@ import io.flutter.plugin.common.StandardMethodCodec;
 public class InstanceStateChannel {
   private static final String TAG = "InstanceStateChannel";
 
-  @NonNull
-  public final MethodChannel channel;
-
   public InstanceStateChannel(@NonNull DartExecutor dartExecutor) {
-    this.channel = new MethodChannel(dartExecutor, "flutter/instancestate");
-    channel.setMethodCallHandler(handler);
+    BasicMessageChannel<ByteBuffer> channel = new BasicMessageChannel<>(dartExecutor, "flutter/instancestate", BinaryCodec.INSTANCE);
+    channel.setMessageHandler(handler);
   }
 
   private byte[] instanceStateFromOS;
-  private byte[] instanceStateFromFlutter;
+  private ByteBuffer instanceStateFromFlutter;
 
   public byte[] getInstanceState() {
-    return instanceStateFromFlutter;
+    return instanceStateFromFlutter.array();
   }
 
   public void setInstanceState(byte[] buffer) {
     instanceStateFromOS = buffer;
   }
 
-  private final MethodChannel.MethodCallHandler handler = new MethodChannel.MethodCallHandler() {
+  private final BasicMessageChannel.MessageHandler<ByteBuffer> handler = new BasicMessageChannel.MessageHandler<ByteBuffer>() {
     @Override
-    public void onMethodCall(@NonNull MethodCall call, @NonNull MethodChannel.Result result) {
-      String method = call.method;
-      Log.v(TAG, "Received '" + method + "' message.");
-      switch (method) {
-        case "get":
-          result.success(instanceStateFromOS);
-          instanceStateFromOS = null;
-          break;
-        case "store":
-          Log.d(TAG, "gggggg: " + call.arguments.toString());
-          instanceStateFromFlutter = (byte[]) call.arguments;
-          result.success(null);
-          break;
-        default:
-          result.notImplemented();
-          break;
+    public void onMessage(@Nullable ByteBuffer message, @NonNull BasicMessageChannel.Reply<ByteBuffer> reply) {
+      instanceStateFromFlutter = message;
+      if (instanceStateFromOS != null) {
+        ByteBuffer buffer = ByteBuffer.allocateDirect(instanceStateFromOS.length);
+        buffer.put(instanceStateFromOS);
+        reply.reply(buffer);
+        instanceStateFromOS = null;
+      } else {
+        reply.reply(null);
       }
     }
   };
-
 }
