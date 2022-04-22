@@ -47,8 +47,10 @@ sk_sp<SkSurface> CreateSurfaceFromMetalTexture(GrDirectContext* context,
 
 GPUSurfaceMetalSkia::GPUSurfaceMetalSkia(GPUSurfaceMetalDelegate* delegate,
                                          sk_sp<GrDirectContext> context,
+                                         int64_t view_id,
                                          bool render_to_surface)
-    : delegate_(delegate),
+    : Surface(view_id),
+      delegate_(delegate),
       render_target_type_(delegate->GetRenderTargetType()),
       context_(std::move(context)),
       render_to_surface_(render_to_surface) {}

@@ -81,12 +81,12 @@ const TaskRunners& EmbedderEngine::GetTaskRunners() const {
   return task_runners_;
 }
 
-bool EmbedderEngine::NotifyCreated() {
+bool EmbedderEngine::NotifyCreated(int64_t view_id) {
   if (!IsValid()) {
     return false;
   }
 
-  shell_->GetPlatformView()->NotifyCreated();
+  shell_->GetPlatformView(view_id)->NotifyCreated();
   return true;
 }
 
@@ -95,16 +95,17 @@ bool EmbedderEngine::NotifyDestroyed() {
     return false;
   }
 
-  shell_->GetPlatformView()->NotifyDestroyed();
+  shell_->GetPlatformView(0)->NotifyDestroyed();
   return true;
 }
 
-bool EmbedderEngine::SetViewportMetrics(flutter::ViewportMetrics metrics) {
+bool EmbedderEngine::SetViewportMetrics(flutter::ViewportMetrics metrics,
+                                        int64_t view_id) {
   if (!IsValid()) {
     return false;
   }
 
-  auto platform_view = shell_->GetPlatformView();
+  auto platform_view = shell_->GetPlatformView(view_id);
   if (!platform_view) {
     return false;
   }
@@ -118,7 +119,7 @@ bool EmbedderEngine::DispatchPointerDataPacket(
     return false;
   }
 
-  auto platform_view = shell_->GetPlatformView();
+  auto platform_view = shell_->GetPlatformView(0);
   if (!platform_view) {
     return false;
   }
@@ -133,7 +134,7 @@ bool EmbedderEngine::SendPlatformMessage(
     return false;
   }
 
-  auto platform_view = shell_->GetPlatformView();
+  auto platform_view = shell_->GetPlatformView(0);
   if (!platform_view) {
     return false;
   }
@@ -146,7 +147,7 @@ bool EmbedderEngine::RegisterTexture(int64_t texture) {
   if (!IsValid()) {
     return false;
   }
-  shell_->GetPlatformView()->RegisterTexture(
+  shell_->GetPlatformView(0)->RegisterTexture(
       external_texture_resolver_->ResolveExternalTexture(texture));
   return true;
 }
@@ -155,7 +156,7 @@ bool EmbedderEngine::UnregisterTexture(int64_t texture) {
   if (!IsValid()) {
     return false;
   }
-  shell_->GetPlatformView()->UnregisterTexture(texture);
+  shell_->GetPlatformView(0)->UnregisterTexture(texture);
   return true;
 }
 
@@ -163,7 +164,7 @@ bool EmbedderEngine::MarkTextureFrameAvailable(int64_t texture) {
   if (!IsValid()) {
     return false;
   }
-  shell_->GetPlatformView()->MarkTextureFrameAvailable(texture);
+  shell_->GetPlatformView(0)->MarkTextureFrameAvailable(texture);
   return true;
 }
 
@@ -172,7 +173,7 @@ bool EmbedderEngine::SetSemanticsEnabled(bool enabled) {
     return false;
   }
 
-  auto platform_view = shell_->GetPlatformView();
+  auto platform_view = shell_->GetPlatformView(0);
   if (!platform_view) {
     return false;
   }
@@ -184,7 +185,7 @@ bool EmbedderEngine::SetAccessibilityFeatures(int32_t flags) {
   if (!IsValid()) {
     return false;
   }
-  auto platform_view = shell_->GetPlatformView();
+  auto platform_view = shell_->GetPlatformView(0);
   if (!platform_view) {
     return false;
   }
@@ -198,7 +199,7 @@ bool EmbedderEngine::DispatchSemanticsAction(int id,
   if (!IsValid()) {
     return false;
   }
-  auto platform_view = shell_->GetPlatformView();
+  auto platform_view = shell_->GetPlatformView(0);
   if (!platform_view) {
     return false;
   }
@@ -278,7 +279,7 @@ bool EmbedderEngine::ScheduleFrame() {
     return false;
   }
 
-  auto platform_view = shell_->GetPlatformView();
+  auto platform_view = shell_->GetPlatformView(0);
   if (!platform_view) {
     return false;
   }

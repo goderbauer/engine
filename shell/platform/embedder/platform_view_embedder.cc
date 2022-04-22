@@ -95,12 +95,13 @@ void PlatformViewEmbedder::HandlePlatformMessage(
 }
 
 // |PlatformView|
-std::unique_ptr<Surface> PlatformViewEmbedder::CreateRenderingSurface() {
+std::unique_ptr<Surface> PlatformViewEmbedder::CreateRenderingSurface(
+    int64_t view_id) {
   if (embedder_surface_ == nullptr) {
     FML_LOG(ERROR) << "Embedder surface was null.";
     return nullptr;
   }
-  return embedder_surface_->CreateGPUSurface();
+  return embedder_surface_->CreateGPUSurface(view_id);
 }
 
 // |PlatformView|

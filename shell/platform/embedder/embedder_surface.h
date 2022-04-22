@@ -19,7 +19,7 @@ class EmbedderSurface {
 
   virtual bool IsValid() const = 0;
 
-  virtual std::unique_ptr<Surface> CreateGPUSurface() = 0;
+  virtual std::unique_ptr<Surface> CreateGPUSurface(int64_t view_id) = 0;
 
   virtual sk_sp<GrDirectContext> CreateResourceContext() const = 0;
 

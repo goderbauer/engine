@@ -45,7 +45,7 @@ void ShellTest::PlatformViewNotifyCreated(Shell* shell) {
   fml::AutoResetWaitableEvent latch;
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(), [shell, &latch]() {
-        shell->GetPlatformView()->NotifyCreated();
+        shell->GetPlatformView(0)->NotifyCreated();
         latch.Signal();
       });
   latch.Wait();
@@ -55,7 +55,7 @@ void ShellTest::PlatformViewNotifyDestroyed(Shell* shell) {
   fml::AutoResetWaitableEvent latch;
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(), [shell, &latch]() {
-        shell->GetPlatformView()->NotifyDestroyed();
+        shell->GetPlatformView(0)->NotifyDestroyed();
         latch.Signal();
       });
   latch.Wait();
@@ -99,7 +99,9 @@ void ShellTest::VSyncFlush(Shell* shell, bool& will_draw_new_frame) {
             });
 
         ShellTestPlatformView* test_platform_view =
-            static_cast<ShellTestPlatformView*>(shell->GetPlatformView().get());
+            static_cast<ShellTestPlatformView*>(
+                shell->GetPlatformView(0)
+                    .get());  // TODO(goderbauer): fix this.
         do {
           test_platform_view->SimulateVSync();
         } while (ui_latch.WaitWithTimeout(fml::TimeDelta::FromMilliseconds(1)));
@@ -208,7 +210,7 @@ void ShellTest::PumpOneFrame(Shell* shell,
         if (builder) {
           builder(root_layer);
         }
-        runtime_delegate->Render(std::move(layer_tree));
+        runtime_delegate->Render(std::move(layer_tree), 0);
         latch.Signal();
       });
   latch.Wait();
@@ -225,7 +227,8 @@ void ShellTest::DispatchPointerData(Shell* shell,
   shell->GetTaskRunners().GetPlatformTaskRunner()->PostTask(
       [&latch, shell, &packet]() {
         // Goes through PlatformView to ensure packet is corrected converted.
-        shell->GetPlatformView()->DispatchPointerDataPacket(std::move(packet));
+        // TODO(goderbauer): Fix id.
+        shell->GetPlatformView(0)->DispatchPointerDataPacket(std::move(packet));
         latch.Signal();
       });
   latch.Wait();

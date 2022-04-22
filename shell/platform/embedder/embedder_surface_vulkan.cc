@@ -94,7 +94,8 @@ bool EmbedderSurfaceVulkan::IsValid() const {
 }
 
 // |EmbedderSurface|
-std::unique_ptr<Surface> EmbedderSurfaceVulkan::CreateGPUSurface() {
+std::unique_ptr<Surface> EmbedderSurfaceVulkan::CreateGPUSurface(
+    int64_t view_id) {
   const bool render_to_surface = !external_view_embedder_;
   return std::make_unique<GPUSurfaceVulkan>(this, main_context_,
                                             render_to_surface);

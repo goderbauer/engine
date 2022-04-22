@@ -30,7 +30,8 @@ bool EmbedderSurfaceSoftware::IsValid() const {
 }
 
 // |EmbedderSurface|
-std::unique_ptr<Surface> EmbedderSurfaceSoftware::CreateGPUSurface() {
+std::unique_ptr<Surface> EmbedderSurfaceSoftware::CreateGPUSurface(
+    int64_t view_id) {
   if (!IsValid()) {
     return nullptr;
   }

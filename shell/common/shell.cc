@@ -482,31 +482,33 @@ Shell::~Shell() {
           }));
   gpu_latch.Wait();
 
-  fml::TaskRunner::RunNowOrPostTask(
-      task_runners_.GetIOTaskRunner(),
-      fml::MakeCopyable([io_manager = std::move(io_manager_),
-                         platform_view = platform_view_.get(),
-                         &io_latch]() mutable {
-        io_manager.reset();
-        if (platform_view) {
-          platform_view->ReleaseResourceContext();
-        }
-        io_latch.Signal();
-      }));
+  // fml::TaskRunner::RunNowOrPostTask(
+  //     task_runners_.GetIOTaskRunner(),
+  //     fml::MakeCopyable([io_manager = std::move(io_manager_),
+  //                        platform_view = platform_views_.get(),
+  //                        &io_latch]() mutable {
+  //       io_manager.reset();
+  //       if (platform_view) {
+  //         platform_view->ReleaseResourceContext();
+  //       }
+  //       io_latch.Signal();
+  //     }));
 
-  io_latch.Wait();
+  // io_latch.Wait();
 
-  // The platform view must go last because it may be holding onto platform side
-  // counterparts to resources owned by subsystems running on other threads. For
-  // example, the NSOpenGLContext on the Mac.
-  fml::TaskRunner::RunNowOrPostTask(
-      task_runners_.GetPlatformTaskRunner(),
-      fml::MakeCopyable([platform_view = std::move(platform_view_),
-                         &platform_latch]() mutable {
-        platform_view.reset();
-        platform_latch.Signal();
-      }));
-  platform_latch.Wait();
+  // // The platform view must go last because it may be holding onto platform
+  // side
+  // // counterparts to resources owned by subsystems running on other threads.
+  // For
+  // // example, the NSOpenGLContext on the Mac.
+  // fml::TaskRunner::RunNowOrPostTask(
+  //     task_runners_.GetPlatformTaskRunner(),
+  //     fml::MakeCopyable([platform_view = std::move(platform_views_),
+  //                        &platform_latch]() mutable {
+  //       platform_view.reset();
+  //       platform_latch.Signal();
+  //     }));
+  // platform_latch.Wait();
 }
 
 std::unique_ptr<Shell> Shell::Spawn(
@@ -642,7 +644,7 @@ bool Shell::IsSetup() const {
   return is_setup_;
 }
 
-bool Shell::Setup(std::unique_ptr<PlatformView> platform_view,
+bool Shell::Setup(std::unique_ptr<PlatformView> platform_view_p,
                   std::unique_ptr<Engine> engine,
                   std::unique_ptr<Rasterizer> rasterizer,
                   std::shared_ptr<ShellIOManager> io_manager) {
@@ -650,12 +652,14 @@ bool Shell::Setup(std::unique_ptr<PlatformView> platform_view,
     return false;
   }
 
-  if (!platform_view || !engine || !rasterizer || !io_manager) {
+  if (!platform_view_p || !engine || !rasterizer || !io_manager) {
     return false;
   }
 
-  platform_view_ = std::move(platform_view);
-  platform_message_handler_ = platform_view_->GetPlatformMessageHandler();
+  FML_LOG(ERROR) << "PlatfromView added: " << platform_view_p->GetId();
+  auto& platform_view = platform_views_[platform_view_p->GetId()] =
+      std::move(platform_view_p);
+  platform_message_handler_ = platform_view->GetPlatformMessageHandler();
   route_messages_through_platform_thread_.store(true);
   task_runners_.GetPlatformTaskRunner()->PostTask(
       [self = weak_factory_.GetWeakPtr()] {
@@ -668,16 +672,16 @@ bool Shell::Setup(std::unique_ptr<PlatformView> platform_view,
   io_manager_ = io_manager;
 
   // Set the external view embedder for the rasterizer.
-  auto view_embedder = platform_view_->CreateExternalViewEmbedder();
+  auto view_embedder = platform_view->CreateExternalViewEmbedder();
   rasterizer_->SetExternalViewEmbedder(view_embedder);
   rasterizer_->SetSnapshotSurfaceProducer(
-      platform_view_->CreateSnapshotSurfaceProducer());
+      platform_view->CreateSnapshotSurfaceProducer());
 
   // The weak ptr must be generated in the platform thread which owns the unique
   // ptr.
   weak_engine_ = engine_->GetWeakPtr();
   weak_rasterizer_ = rasterizer_->GetWeakPtr();
-  weak_platform_view_ = platform_view_->GetWeakPtr();
+  weak_platform_views_[platform_view->GetId()] = platform_view->GetWeakPtr();
 
   // Setup the time-consuming default font manager right after engine created.
   if (!settings_.prefetched_default_font_manager) {
@@ -727,9 +731,16 @@ fml::WeakPtr<Engine> Shell::GetEngine() {
   return weak_engine_;
 }
 
-fml::WeakPtr<PlatformView> Shell::GetPlatformView() {
+fml::WeakPtr<PlatformView> Shell::GetPlatformView(int64_t view_id) {
   FML_DCHECK(is_setup_);
-  return weak_platform_view_;
+  FML_LOG(ERROR) << "Get PlatformView: " << view_id;
+
+  return weak_platform_views_.at(view_id);
+}
+
+void Shell::AddPlatformView(std::unique_ptr<PlatformView> platform_view) {
+  weak_platform_views_[platform_view->GetId()] = platform_view->GetWeakPtr();
+  platform_views_[platform_view->GetId()] = std::move(platform_view);
 }
 
 fml::WeakPtr<ShellIOManager> Shell::GetIOManager() {
@@ -742,7 +753,8 @@ DartVM* Shell::GetDartVM() {
 }
 
 // |PlatformView::Delegate|
-void Shell::OnPlatformViewCreated(std::unique_ptr<Surface> surface) {
+void Shell::OnPlatformViewCreated(std::unique_ptr<Surface> surface,
+                                  int64_t view_id) {
   TRACE_EVENT0("flutter", "Shell::OnPlatformViewCreated");
   FML_DCHECK(is_setup_);
   FML_DCHECK(task_runners_.GetPlatformTaskRunner()->RunsTasksOnCurrentThread());
@@ -796,7 +808,7 @@ void Shell::OnPlatformViewCreated(std::unique_ptr<Surface> surface) {
   // We are going to use the pointer on the IO thread which is not safe with a
   // weak pointer. However, we are preventing the platform view from being
   // collected by using a latch.
-  auto* platform_view = platform_view_.get();
+  auto* platform_view = platform_views_.at(view_id).get();
 
   FML_DCHECK(platform_view);
 
@@ -1205,7 +1217,7 @@ void Shell::OnEngineUpdateSemantics(SemanticsNodeUpdates update,
   FML_DCHECK(task_runners_.GetUITaskRunner()->RunsTasksOnCurrentThread());
 
   task_runners_.GetPlatformTaskRunner()->PostTask(
-      [view = platform_view_->GetWeakPtr(), update = std::move(update),
+      [view = platform_views_.at(0)->GetWeakPtr(), update = std::move(update),
        actions = std::move(actions)] {
         if (view) {
           view->UpdateSemantics(std::move(update), std::move(actions));
@@ -1251,7 +1263,7 @@ void Shell::OnEngineHandlePlatformMessage(
     }
   } else {
     task_runners_.GetPlatformTaskRunner()->PostTask(
-        fml::MakeCopyable([view = platform_view_->GetWeakPtr(),
+        fml::MakeCopyable([view = platform_views_.at(0)->GetWeakPtr(),
                            message = std::move(message)]() mutable {
           if (view) {
             view->HandlePlatformMessage(std::move(message));
@@ -1304,9 +1316,11 @@ void Shell::OnPreEngineRestart() {
   fml::AutoResetWaitableEvent latch;
   fml::TaskRunner::RunNowOrPostTask(
       task_runners_.GetPlatformTaskRunner(),
-      [view = platform_view_->GetWeakPtr(), &latch]() {
-        if (view) {
-          view->OnPreEngineRestart();
+      [views = weak_platform_views_, &latch]() {
+        for (auto& view : views) {
+          if (view.second.get()) {
+            view.second.get()->OnPreEngineRestart();
+          }
         }
         latch.Signal();
       });
@@ -1346,7 +1360,8 @@ void Shell::SetNeedsReportTimings(bool value) {
 // |Engine::Delegate|
 std::unique_ptr<std::vector<std::string>> Shell::ComputePlatformResolvedLocale(
     const std::vector<std::string>& supported_locale_data) {
-  return platform_view_->ComputePlatformResolvedLocales(supported_locale_data);
+  return platform_views_.at(0)->ComputePlatformResolvedLocales(
+      supported_locale_data);
 }
 
 void Shell::LoadDartDeferredLibrary(
@@ -1381,7 +1396,7 @@ void Shell::UpdateAssetResolverByType(
 // |Engine::Delegate|
 void Shell::RequestDartDeferredLibrary(intptr_t loading_unit_id) {
   task_runners_.GetPlatformTaskRunner()->PostTask(
-      [view = platform_view_->GetWeakPtr(), loading_unit_id] {
+      [view = platform_views_.at(0)->GetWeakPtr(), loading_unit_id] {
         if (view) {
           view->RequestDartDeferredLibrary(loading_unit_id);
         }

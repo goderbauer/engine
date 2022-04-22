@@ -68,7 +68,8 @@ class PlatformView {
     ///
     /// @param[in]  surface           The surface
     ///
-    virtual void OnPlatformViewCreated(std::unique_ptr<Surface> surface) = 0;
+    virtual void OnPlatformViewCreated(std::unique_ptr<Surface> surface,
+                                       int64_t view_id) = 0;
 
     //--------------------------------------------------------------------------
     /// @brief      Notifies the delegate that the platform view was destroyed.
@@ -832,13 +833,20 @@ class PlatformView {
   ///
   const Settings& GetSettings() const;
 
+  int64_t GetId() const;
+
  protected:
   // This is the only method called on the raster task runner.
-  virtual std::unique_ptr<Surface> CreateRenderingSurface();
+  virtual std::unique_ptr<Surface> CreateRenderingSurface(int64_t view_id);
 
   PlatformView::Delegate& delegate_;
   const TaskRunners task_runners_;
   PointerDataPacketConverter pointer_data_packet_converter_;
+
+ private:
+  const int64_t view_id_;
+
+ protected:
   fml::WeakPtrFactory<PlatformView> weak_factory_;  // Must be the last member.
 
  private:

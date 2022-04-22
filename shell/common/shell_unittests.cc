@@ -126,7 +126,8 @@ class MockPlatformView : public PlatformView {
  public:
   MockPlatformView(MockPlatformViewDelegate& delegate, TaskRunners task_runners)
       : PlatformView(delegate, task_runners) {}
-  MOCK_METHOD0(CreateRenderingSurface, std::unique_ptr<Surface>());
+  MOCK_METHOD1(CreateRenderingSurface,
+               std::unique_ptr<Surface>(int64_t view_id));
   MOCK_CONST_METHOD0(GetPlatformMessageHandler,
                      std::shared_ptr<PlatformMessageHandler>());
 };
@@ -135,7 +136,8 @@ class TestPlatformView : public PlatformView {
  public:
   TestPlatformView(Shell& shell, TaskRunners task_runners)
       : PlatformView(shell, task_runners) {}
-  MOCK_METHOD0(CreateRenderingSurface, std::unique_ptr<Surface>());
+  MOCK_METHOD1(CreateRenderingSurface,
+               std::unique_ptr<Surface>(int64_t view_id));
 };
 
 class MockPlatformMessageHandler : public PlatformMessageHandler {
@@ -201,7 +203,7 @@ static bool ValidateShell(Shell* shell) {
     fml::AutoResetWaitableEvent latch;
     fml::TaskRunner::RunNowOrPostTask(
         shell->GetTaskRunners().GetPlatformTaskRunner(), [shell, &latch]() {
-          shell->GetPlatformView()->NotifyDestroyed();
+          shell->GetPlatformView(0)->NotifyDestroyed();
           latch.Signal();
         });
     latch.Wait();
@@ -1580,7 +1582,7 @@ TEST_F(ShellTest, MultipleFluttersSetResourceCacheBytes) {
   Shell::CreateCallback<PlatformView> platform_view_create_callback =
       [task_runners, main_context](flutter::Shell& shell) {
         auto result = std::make_unique<TestPlatformView>(shell, task_runners);
-        ON_CALL(*result, CreateRenderingSurface())
+        ON_CALL(*result, CreateRenderingSurface(0))
             .WillByDefault(::testing::Invoke([main_context] {
               auto surface = std::make_unique<MockSurface>();
               ON_CALL(*surface, GetContext())
@@ -1613,7 +1615,7 @@ TEST_F(ShellTest, MultipleFluttersSetResourceCacheBytes) {
 
   RunEngine(shell.get(), std::move(configuration));
   PostSync(shell->GetTaskRunners().GetPlatformTaskRunner(), [&shell]() {
-    shell->GetPlatformView()->SetViewportMetrics({1.0, 100, 100, 22});
+    shell->GetPlatformView(0)->SetViewportMetrics({1.0, 100, 100, 22});
   });
 
   // first cache bytes
@@ -1641,7 +1643,7 @@ TEST_F(ShellTest, MultipleFluttersSetResourceCacheBytes) {
   PlatformViewNotifyCreated(second_shell.get());
   PostSync(second_shell->GetTaskRunners().GetPlatformTaskRunner(),
            [&second_shell]() {
-             second_shell->GetPlatformView()->SetViewportMetrics(
+             second_shell->GetPlatformView(0)->SetViewportMetrics(
                  {1.0, 100, 100, 22});
            });
   // first cache bytes + second cache bytes
@@ -1650,7 +1652,7 @@ TEST_F(ShellTest, MultipleFluttersSetResourceCacheBytes) {
 
   PostSync(second_shell->GetTaskRunners().GetPlatformTaskRunner(),
            [&second_shell]() {
-             second_shell->GetPlatformView()->SetViewportMetrics(
+             second_shell->GetPlatformView(0)->SetViewportMetrics(
                  {1.0, 100, 300, 22});
            });
   // first cache bytes + second cache bytes
@@ -1659,18 +1661,20 @@ TEST_F(ShellTest, MultipleFluttersSetResourceCacheBytes) {
 
   std::unique_ptr<Shell> third_shell = shell_spawn_callback();
   PlatformViewNotifyCreated(third_shell.get());
-  PostSync(
-      third_shell->GetTaskRunners().GetPlatformTaskRunner(), [&third_shell]() {
-        third_shell->GetPlatformView()->SetViewportMetrics({1.0, 400, 100, 22});
-      });
+  PostSync(third_shell->GetTaskRunners().GetPlatformTaskRunner(),
+           [&third_shell]() {
+             third_shell->GetPlatformView(0)->SetViewportMetrics(
+                 {1.0, 400, 100, 22});
+           });
   // first cache bytes + second cache bytes + third cache bytes
   EXPECT_EQ(GetRasterizerResourceCacheBytesSync(*shell),
             static_cast<size_t>(3840000U));
 
-  PostSync(
-      third_shell->GetTaskRunners().GetPlatformTaskRunner(), [&third_shell]() {
-        third_shell->GetPlatformView()->SetViewportMetrics({1.0, 800, 100, 22});
-      });
+  PostSync(third_shell->GetTaskRunners().GetPlatformTaskRunner(),
+           [&third_shell]() {
+             third_shell->GetPlatformView(0)->SetViewportMetrics(
+                 {1.0, 800, 100, 22});
+           });
   // max bytes threshold
   EXPECT_EQ(GetRasterizerResourceCacheBytesSync(*shell),
             static_cast<size_t>(4000000U));
@@ -1681,7 +1685,7 @@ TEST_F(ShellTest, MultipleFluttersSetResourceCacheBytes) {
 
   PostSync(second_shell->GetTaskRunners().GetPlatformTaskRunner(),
            [&second_shell]() {
-             second_shell->GetPlatformView()->SetViewportMetrics(
+             second_shell->GetPlatformView(0)->SetViewportMetrics(
                  {1.0, 100, 100, 22});
            });
   // first cache bytes + second cache bytes
@@ -1724,7 +1728,7 @@ TEST_F(ShellTest, SetResourceCacheSize) {
 
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(), [&shell]() {
-        shell->GetPlatformView()->SetViewportMetrics({1.0, 400, 200, 22});
+        shell->GetPlatformView(0)->SetViewportMetrics({1.0, 400, 200, 22});
       });
   PumpOneFrame(shell.get());
 
@@ -1744,7 +1748,7 @@ TEST_F(ShellTest, SetResourceCacheSize) {
 
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(), [&shell]() {
-        shell->GetPlatformView()->SetViewportMetrics({1.0, 800, 400, 22});
+        shell->GetPlatformView(0)->SetViewportMetrics({1.0, 800, 400, 22});
       });
   PumpOneFrame(shell.get());
 
@@ -1762,7 +1766,7 @@ TEST_F(ShellTest, SetResourceCacheSizeEarly) {
 
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(), [&shell]() {
-        shell->GetPlatformView()->SetViewportMetrics({1.0, 400, 200, 22});
+        shell->GetPlatformView(0)->SetViewportMetrics({1.0, 400, 200, 22});
       });
   PumpOneFrame(shell.get());
 
@@ -1790,7 +1794,7 @@ TEST_F(ShellTest, SetResourceCacheSizeNotifiesDart) {
 
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(), [&shell]() {
-        shell->GetPlatformView()->SetViewportMetrics({1.0, 400, 200, 22});
+        shell->GetPlatformView(0)->SetViewportMetrics({1.0, 400, 200, 22});
       });
   PumpOneFrame(shell.get());
 
@@ -1913,8 +1917,8 @@ TEST_F(ShellTest, TextureFrameMarkedAvailableAndUnregister) {
 
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetRasterTaskRunner(), [&]() {
-        shell->GetPlatformView()->RegisterTexture(mockTexture);
-        shell->GetPlatformView()->MarkTextureFrameAvailable(0);
+        shell->GetPlatformView(0)->RegisterTexture(mockTexture);
+        shell->GetPlatformView(0)->MarkTextureFrameAvailable(0);
       });
   latch->Wait();
 
@@ -1922,7 +1926,7 @@ TEST_F(ShellTest, TextureFrameMarkedAvailableAndUnregister) {
 
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetRasterTaskRunner(),
-      [&]() { shell->GetPlatformView()->UnregisterTexture(0); });
+      [&]() { shell->GetPlatformView(0)->UnregisterTexture(0); });
   latch->Wait();
 
   EXPECT_EQ(mockTexture->unregistered(), true);
@@ -1993,7 +1997,7 @@ TEST_F(ShellTest, CanScheduleFrameFromPlatform) {
 
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(),
-      [&shell]() { shell->GetPlatformView()->ScheduleFrame(); });
+      [&shell]() { shell->GetPlatformView(0)->ScheduleFrame(); });
   check_latch.Wait();
   DestroyShell(std::move(shell), std::move(task_runners));
 }
@@ -2599,7 +2603,7 @@ TEST_F(ShellTest, DISABLED_DiscardLayerTreeOnResize) {
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(),
       [&shell, &expected_size]() {
-        shell->GetPlatformView()->SetViewportMetrics(
+        shell->GetPlatformView(0)->SetViewportMetrics(
             {1.0, static_cast<double>(expected_size.width()),
              static_cast<double>(expected_size.height()), 22});
       });
@@ -2672,7 +2676,7 @@ TEST_F(ShellTest, DISABLED_DiscardResubmittedLayerTreeOnResize) {
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(),
       [&shell, &origin_size]() {
-        shell->GetPlatformView()->SetViewportMetrics(
+        shell->GetPlatformView(0)->SetViewportMetrics(
             {1.0, static_cast<double>(origin_size.width()),
              static_cast<double>(origin_size.height()), 22});
       });
@@ -2691,7 +2695,7 @@ TEST_F(ShellTest, DISABLED_DiscardResubmittedLayerTreeOnResize) {
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(),
       [&shell, &new_size, &resize_latch]() {
-        shell->GetPlatformView()->SetViewportMetrics(
+        shell->GetPlatformView(0)->SetViewportMetrics(
             {1.0, static_cast<double>(new_size.width()),
              static_cast<double>(new_size.height()), 22});
         resize_latch.Signal();
@@ -2757,13 +2761,13 @@ TEST_F(ShellTest, IgnoresInvalidMetrics) {
   RunEngine(shell.get(), std::move(configuration));
 
   task_runner->PostTask([&]() {
-    shell->GetPlatformView()->SetViewportMetrics({0.0, 400, 200, 22});
+    shell->GetPlatformView(0)->SetViewportMetrics({0.0, 400, 200, 22});
     task_runner->PostTask([&]() {
-      shell->GetPlatformView()->SetViewportMetrics({0.8, 0.0, 200, 22});
+      shell->GetPlatformView(0)->SetViewportMetrics({0.8, 0.0, 200, 22});
       task_runner->PostTask([&]() {
-        shell->GetPlatformView()->SetViewportMetrics({0.8, 400, 0.0, 22});
+        shell->GetPlatformView(0)->SetViewportMetrics({0.8, 400, 0.0, 22});
         task_runner->PostTask([&]() {
-          shell->GetPlatformView()->SetViewportMetrics({0.8, 400, 200.0, 22});
+          shell->GetPlatformView(0)->SetViewportMetrics({0.8, 400, 200.0, 22});
         });
       });
     });
@@ -2775,7 +2779,7 @@ TEST_F(ShellTest, IgnoresInvalidMetrics) {
   latch.Reset();
 
   task_runner->PostTask([&]() {
-    shell->GetPlatformView()->SetViewportMetrics({1.2, 600, 300, 22});
+    shell->GetPlatformView(0)->SetViewportMetrics({1.2, 600, 300, 22});
   });
   latch.Wait();
   ASSERT_EQ(last_device_pixel_ratio, 1.2);
@@ -3059,7 +3063,7 @@ TEST_F(ShellTest, Spawn) {
             [&platform_view_delegate](Shell& shell) {
               auto result = std::make_unique<MockPlatformView>(
                   platform_view_delegate, shell.GetTaskRunners());
-              ON_CALL(*result, CreateRenderingSurface())
+              ON_CALL(*result, CreateRenderingSurface(0))
                   .WillByDefault(::testing::Invoke(
                       [] { return std::make_unique<MockSurface>(); }));
               return result;
@@ -3162,7 +3166,7 @@ TEST_F(ShellTest, SpawnWithDartEntrypointArgs) {
             [&platform_view_delegate](Shell& shell) {
               auto result = std::make_unique<MockPlatformView>(
                   platform_view_delegate, shell.GetTaskRunners());
-              ON_CALL(*result, CreateRenderingSurface())
+              ON_CALL(*result, CreateRenderingSurface(0))
                   .WillByDefault(::testing::Invoke(
                       [] { return std::make_unique<MockSurface>(); }));
               return result;
@@ -3225,7 +3229,7 @@ TEST_F(ShellTest, IOManagerIsSharedBetweenParentAndSpawnedShell) {
         [&platform_view_delegate](Shell& shell) {
           auto result = std::make_unique<MockPlatformView>(
               platform_view_delegate, shell.GetTaskRunners());
-          ON_CALL(*result, CreateRenderingSurface())
+          ON_CALL(*result, CreateRenderingSurface(0))
               .WillByDefault(::testing::Invoke(
                   [] { return std::make_unique<MockSurface>(); }));
           return result;
@@ -3279,7 +3283,7 @@ TEST_F(ShellTest, IOManagerInSpawnedShellIsNotNullAfterParentShellDestroyed) {
         [&platform_view_delegate](Shell& shell) {
           auto result = std::make_unique<MockPlatformView>(
               platform_view_delegate, shell.GetTaskRunners());
-          ON_CALL(*result, CreateRenderingSurface())
+          ON_CALL(*result, CreateRenderingSurface(0))
               .WillByDefault(::testing::Invoke(
                   [] { return std::make_unique<MockSurface>(); }));
           return result;
@@ -3327,7 +3331,7 @@ TEST_F(ShellTest, ImageGeneratorRegistryNotNullAfterParentShellDestroyed) {
         [&platform_view_delegate](Shell& shell) {
           auto result = std::make_unique<MockPlatformView>(
               platform_view_delegate, shell.GetTaskRunners());
-          ON_CALL(*result, CreateRenderingSurface())
+          ON_CALL(*result, CreateRenderingSurface(0))
               .WillByDefault(::testing::Invoke(
                   [] { return std::make_unique<MockSurface>(); }));
           return result;
@@ -3705,7 +3709,7 @@ TEST_F(ShellTest, UIWorkAfterOnPlatformViewDestroyed) {
   fml::TaskRunner::RunNowOrPostTask(
       shell->GetTaskRunners().GetPlatformTaskRunner(),
       [&shell, &destroy_latch]() {
-        shell->GetPlatformView()->NotifyDestroyed();
+        shell->GetPlatformView(0)->NotifyDestroyed();
         destroy_latch.Signal();
       });
 
@@ -3817,7 +3821,7 @@ TEST_F(ShellTest, SpawnWorksWithOnError) {
               auto result =
                   std::make_unique<::testing::NiceMock<MockPlatformView>>(
                       platform_view_delegate, shell.GetTaskRunners());
-              ON_CALL(*result, CreateRenderingSurface())
+              ON_CALL(*result, CreateRenderingSurface(0))
                   .WillByDefault(::testing::Invoke([] {
                     return std::make_unique<::testing::NiceMock<MockSurface>>();
                   }));

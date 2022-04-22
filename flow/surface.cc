@@ -6,7 +6,9 @@
 
 namespace flutter {
 
-Surface::Surface() = default;
+Surface::Surface(int64_t id) : id_(id) {
+  FML_LOG(ERROR) << "Surface " << id_ << " " << this;
+}
 
 Surface::~Surface() = default;
 
@@ -24,6 +26,10 @@ bool Surface::AllowsDrawingWhenGpuDisabled() const {
 
 bool Surface::EnableRasterCache() const {
   return true;
+}
+
+int64_t Surface::GetId() const {
+  return id_;
 }
 
 }  // namespace flutter

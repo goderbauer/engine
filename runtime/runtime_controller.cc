@@ -279,8 +279,8 @@ void RuntimeController::ScheduleFrame() {
 }
 
 // |PlatformConfigurationClient|
-void RuntimeController::Render(Scene* scene) {
-  client_.Render(scene->takeLayerTree());
+void RuntimeController::Render(Scene* scene, int64_t view_id) {
+  client_.Render(scene->takeLayerTree(), view_id);
 }
 
 // |PlatformConfigurationClient|

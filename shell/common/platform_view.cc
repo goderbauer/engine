@@ -13,9 +13,15 @@
 
 namespace flutter {
 
+static size_t PlatformViewGenerateId() {
+  static std::atomic_int64_t gLastItem;
+  return gLastItem++;
+}
+
 PlatformView::PlatformView(Delegate& delegate, TaskRunners task_runners)
     : delegate_(delegate),
       task_runners_(std::move(task_runners)),
+      view_id_(PlatformViewGenerateId()),
       weak_factory_(this) {}
 
 PlatformView::~PlatformView() = default;
@@ -64,8 +70,9 @@ void PlatformView::NotifyCreated() {
   auto* platform_view = this;
   fml::ManualResetWaitableEvent latch;
   fml::TaskRunner::RunNowOrPostTask(
-      task_runners_.GetRasterTaskRunner(), [platform_view, &surface, &latch]() {
-        surface = platform_view->CreateRenderingSurface();
+      task_runners_.GetRasterTaskRunner(),
+      [platform_view, &surface, &latch, view_id = view_id_]() {
+        surface = platform_view->CreateRenderingSurface(view_id);
         if (surface && !surface->IsValid()) {
           surface.reset();
         }
@@ -76,7 +83,7 @@ void PlatformView::NotifyCreated() {
     FML_LOG(ERROR) << "Failed to create platform view rendering surface";
     return;
   }
-  delegate_.OnPlatformViewCreated(std::move(surface));
+  delegate_.OnPlatformViewCreated(std::move(surface), view_id_);
 }
 
 void PlatformView::NotifyDestroyed() {
@@ -133,7 +140,7 @@ void PlatformView::MarkTextureFrameAvailable(int64_t texture_id) {
   delegate_.OnPlatformViewMarkTextureFrameAvailable(texture_id);
 }
 
-std::unique_ptr<Surface> PlatformView::CreateRenderingSurface() {
+std::unique_ptr<Surface> PlatformView::CreateRenderingSurface(int64_t view_id) {
   // We have a default implementation because tests create a platform view but
   // never a rendering surface.
   FML_DCHECK(false) << "This platform does not provide a rendering surface but "
@@ -193,6 +200,10 @@ PlatformView::GetPlatformMessageHandler() const {
 
 const Settings& PlatformView::GetSettings() const {
   return delegate_.OnPlatformViewGetSettings();
+}
+
+int64_t PlatformView::GetId() const {
+  return view_id_;
 }
 
 }  // namespace flutter

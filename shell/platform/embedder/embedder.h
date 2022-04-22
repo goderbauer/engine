@@ -1902,7 +1902,8 @@ FlutterEngineResult FlutterEngineRunInitialized(
 FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineSendWindowMetricsEvent(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
-    const FlutterWindowMetricsEvent* event);
+    const FlutterWindowMetricsEvent* event,
+    int64_t view_id);
 
 FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineSendPointerEvent(
@@ -2455,7 +2456,8 @@ typedef FlutterEngineResult (*FlutterEngineRunInitializedFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine);
 typedef FlutterEngineResult (*FlutterEngineSendWindowMetricsEventFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
-    const FlutterWindowMetricsEvent* event);
+    const FlutterWindowMetricsEvent* event,
+    int64_t view_id);
 typedef FlutterEngineResult (*FlutterEngineSendPointerEventFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
     const FlutterPointerEvent* events,

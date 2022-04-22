@@ -17,6 +17,7 @@ class SK_API_AVAILABLE_CA_METAL_LAYER GPUSurfaceMetalSkia : public Surface {
  public:
   GPUSurfaceMetalSkia(GPUSurfaceMetalDelegate* delegate,
                       sk_sp<GrDirectContext> context,
+                      int64_t view_id,
                       bool render_to_surface = true);
 
   // |Surface|

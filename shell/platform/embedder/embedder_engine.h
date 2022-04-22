@@ -39,7 +39,7 @@ class EmbedderEngine {
 
   const TaskRunners& GetTaskRunners() const;
 
-  bool NotifyCreated();
+  bool NotifyCreated(int64_t view_id);
 
   bool NotifyDestroyed();
 
@@ -47,7 +47,7 @@ class EmbedderEngine {
 
   bool IsValid() const;
 
-  bool SetViewportMetrics(flutter::ViewportMetrics metrics);
+  bool SetViewportMetrics(flutter::ViewportMetrics metrics, int64_t view_id);
 
   bool DispatchPointerDataPacket(
       std::unique_ptr<flutter::PointerDataPacket> packet);

@@ -17,7 +17,7 @@ namespace flutter {
 /// Abstract Base Class that represents where we will be rendering content.
 class Surface {
  public:
-  Surface();
+  explicit Surface(int64_t id = 0);
 
   virtual ~Surface();
 
@@ -37,7 +37,10 @@ class Surface {
 
   virtual bool EnableRasterCache() const;
 
+  int64_t GetId() const;
+
  private:
+  const int64_t id_;
   FML_DISALLOW_COPY_AND_ASSIGN(Surface);
 };
 

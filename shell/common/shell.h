@@ -264,7 +264,9 @@ class Shell final : public PlatformView::Delegate,
   ///
   /// @return     A weak pointer to the platform view.
   ///
-  fml::WeakPtr<PlatformView> GetPlatformView();
+  fml::WeakPtr<PlatformView> GetPlatformView(int64_t view_id);
+
+  void AddPlatformView(std::unique_ptr<PlatformView> platform_view);
 
   //----------------------------------------------------------------------------
   /// @brief      The IO Manager may only be accessed on the IO task runner.
@@ -419,10 +421,11 @@ class Shell final : public PlatformView::Delegate,
   DartVMRef vm_;
   mutable std::mutex time_recorder_mutex_;
   std::optional<fml::TimePoint> latest_frame_target_time_;
-  std::unique_ptr<PlatformView> platform_view_;  // on platform task runner
-  std::unique_ptr<Engine> engine_;               // on UI task runner
-  std::unique_ptr<Rasterizer> rasterizer_;       // on raster task runner
-  std::shared_ptr<ShellIOManager> io_manager_;   // on IO task runner
+  std::unordered_map<int64_t, std::unique_ptr<PlatformView>>
+      platform_views_;                          // on platform task runner
+  std::unique_ptr<Engine> engine_;              // on UI task runner
+  std::unique_ptr<Rasterizer> rasterizer_;      // on raster task runner
+  std::shared_ptr<ShellIOManager> io_manager_;  // on IO task runner
   std::shared_ptr<fml::SyncSwitch> is_gpu_disabled_sync_switch_;
   std::shared_ptr<VolatilePathTracker> volatile_path_tracker_;
   std::shared_ptr<PlatformMessageHandler> platform_message_handler_;
@@ -431,8 +434,8 @@ class Shell final : public PlatformView::Delegate,
   fml::WeakPtr<Engine> weak_engine_;  // to be shared across threads
   fml::TaskRunnerAffineWeakPtr<Rasterizer>
       weak_rasterizer_;  // to be shared across threads
-  fml::WeakPtr<PlatformView>
-      weak_platform_view_;  // to be shared across threads
+  std::unordered_map<int64_t, fml::WeakPtr<PlatformView>>
+      weak_platform_views_;  // to be shared across threads
 
   std::unordered_map<std::string_view,  // method
                      std::pair<fml::RefPtr<fml::TaskRunner>,
@@ -523,7 +526,8 @@ class Shell final : public PlatformView::Delegate,
   void ReportTimings();
 
   // |PlatformView::Delegate|
-  void OnPlatformViewCreated(std::unique_ptr<Surface> surface) override;
+  void OnPlatformViewCreated(std::unique_ptr<Surface> surface,
+                             int64_t view_id) override;
 
   // |PlatformView::Delegate|
   void OnPlatformViewDestroyed() override;

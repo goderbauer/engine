@@ -534,7 +534,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
       .left = static_cast<size_t>(scaledBounds.origin.x),
       .top = static_cast<size_t>(scaledBounds.origin.y),
   };
-  _embedderAPI.SendWindowMetricsEvent(_engine, &windowMetricsEvent);
+  _embedderAPI.SendWindowMetricsEvent(_engine, &windowMetricsEvent, 0);
 }
 
 - (void)sendPointerEvent:(const FlutterPointerEvent&)event {

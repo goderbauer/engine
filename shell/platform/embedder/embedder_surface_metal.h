@@ -42,7 +42,7 @@ class EmbedderSurfaceMetal final : public EmbedderSurface,
   bool IsValid() const override;
 
   // |EmbedderSurface|
-  std::unique_ptr<Surface> CreateGPUSurface() override;
+  std::unique_ptr<Surface> CreateGPUSurface(int64_t view_id) override;
 
   // |EmbedderSurface|
   sk_sp<GrDirectContext> CreateResourceContext() const override;

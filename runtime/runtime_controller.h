@@ -603,7 +603,7 @@ class RuntimeController : public PlatformConfigurationClient {
   void ScheduleFrame() override;
 
   // |PlatformConfigurationClient|
-  void Render(Scene* scene) override;
+  void Render(Scene* scene, int64_t view_id) override;
 
   // |PlatformConfigurationClient|
   void UpdateSemantics(SemanticsUpdate* update) override;

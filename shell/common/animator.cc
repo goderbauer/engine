@@ -158,9 +158,11 @@ void Animator::BeginFrame(
   }
 }
 
-void Animator::Render(std::unique_ptr<flutter::LayerTree> layer_tree) {
+void Animator::Render(std::unique_ptr<flutter::LayerTree> layer_tree,
+                      int64_t view_id) {
   has_rendered_ = true;
   last_layer_tree_size_ = layer_tree->frame_size();
+  layer_tree->view_id = view_id;  // HACKY
 
   if (!frame_timings_recorder_) {
     // Framework can directly call render with a built scene.

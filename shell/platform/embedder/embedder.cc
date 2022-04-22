@@ -1563,7 +1563,7 @@ FlutterEngineResult FlutterEngineRunInitialized(
   }
 
   // Step 2: Tell the platform view to initialize itself.
-  if (!embedder_engine->NotifyCreated()) {
+  if (!embedder_engine->NotifyCreated(0)) {
     return LOG_EMBEDDER_ERROR(kInternalInconsistency,
                               "Could not create platform view components.");
   }
@@ -1605,7 +1605,8 @@ FlutterEngineResult FlutterEngineShutdown(FLUTTER_API_SYMBOL(FlutterEngine)
 
 FlutterEngineResult FlutterEngineSendWindowMetricsEvent(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
-    const FlutterWindowMetricsEvent* flutter_metrics) {
+    const FlutterWindowMetricsEvent* flutter_metrics,
+    int64_t view_id) {
   if (engine == nullptr || flutter_metrics == nullptr) {
     return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
   }
@@ -1649,7 +1650,7 @@ FlutterEngineResult FlutterEngineSendWindowMetricsEvent(
   }
 
   return reinterpret_cast<flutter::EmbedderEngine*>(engine)->SetViewportMetrics(
-             std::move(metrics))
+             std::move(metrics), view_id)
              ? kSuccess
              : LOG_EMBEDDER_ERROR(kInvalidArguments,
                                   "Viewport metrics were invalid.");

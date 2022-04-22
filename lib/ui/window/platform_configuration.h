@@ -65,7 +65,7 @@ class PlatformConfigurationClient {
   /// @brief      Updates the client's rendering on the GPU with the newly
   ///             provided Scene.
   ///
-  virtual void Render(Scene* scene) = 0;
+  virtual void Render(Scene* scene, int64_t view_id) = 0;
 
   //--------------------------------------------------------------------------
   /// @brief      Receives a updated semantics tree from the Framework.

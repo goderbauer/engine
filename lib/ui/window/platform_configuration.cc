@@ -40,11 +40,14 @@ void Render(Dart_NativeArguments args) {
   Dart_Handle exception = nullptr;
   Scene* scene =
       tonic::DartConverter<Scene*>::FromArguments(args, 1, exception);
+  int64_t view_id =
+      tonic::DartConverter<int64_t>::FromArguments(args, 2, exception);
   if (exception) {
     Dart_ThrowException(exception);
     return;
   }
-  UIDartState::Current()->platform_configuration()->client()->Render(scene);
+  UIDartState::Current()->platform_configuration()->client()->Render(scene,
+                                                                     view_id);
 }
 
 void UpdateSemantics(Dart_NativeArguments args) {

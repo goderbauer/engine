@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <optional>
+#include <unordered_map>
 
 #include "flutter/common/settings.h"
 #include "flutter/common/task_runners.h"
@@ -141,6 +142,8 @@ class Rasterizer final : public SnapshotDelegate,
   ///
   void Teardown();
 
+  void TeardownSurface(Surface* surface);
+
   //----------------------------------------------------------------------------
   /// @brief      Releases any resource used by the external view embedder.
   ///             For example, overlay surfaces or Android views.
@@ -155,6 +158,8 @@ class Rasterizer final : public SnapshotDelegate,
   ///             is told to free GPU resources.
   ///
   void NotifyLowMemoryWarning() const;
+
+  void NotifyLowMemoryWarningSurface(Surface* surface) const;
 
   //----------------------------------------------------------------------------
   /// @brief      Gets a weak pointer to the rasterizer. The rasterizer may only
@@ -500,7 +505,7 @@ class Rasterizer final : public SnapshotDelegate,
   static bool ShouldResubmitFrame(const RasterStatus& raster_status);
 
   Delegate& delegate_;
-  std::unique_ptr<Surface> surface_;
+  std::unordered_map<int64_t, std::unique_ptr<Surface>> surfaces_;
   std::unique_ptr<SnapshotSurfaceProducer> snapshot_surface_producer_;
   std::unique_ptr<flutter::CompositorContext> compositor_context_;
   // This is the last successfully rasterized layer tree.
