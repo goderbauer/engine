@@ -146,7 +146,7 @@ static FlutterLocale FlutterLocaleFromNSLocale(NSLocale* locale) {
 }
 
 - (id<FlutterTextureRegistry>)textures {
-  return _flutterEngine.renderer;
+  return [_flutterEngine.renderers objectForKey:@0];
 }
 
 - (NSView*)view {
@@ -231,6 +231,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
   _project = project ?: [[FlutterDartProject alloc] init];
   _messengerHandlers = [[NSMutableDictionary alloc] init];
+  _renderers = [[NSMutableDictionary alloc] init];
   _currentMessengerConnection = 1;
   _allowHeadlessExecution = allowHeadlessExecution;
   _semanticsEnabled = NO;
@@ -239,10 +240,11 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   FlutterEngineGetProcAddresses(&_embedderAPI);
 
   if ([FlutterRenderingBackend renderUsingMetal]) {
-    _renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
+    [_renderers setObject: [[FlutterMetalRenderer alloc] initWithFlutterEngine:self] forKey: @0];
   } else {
-    _renderer = [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self];
+    [_renderers setObject: [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self] forKey: @0];
   }
+  NSLog(@"renderers: %@", _renderers);
 
   NSNotificationCenter* notificationCenter = [NSNotificationCenter defaultCenter];
   [notificationCenter addObserver:self
@@ -350,7 +352,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
     [engine engineCallbackOnPreEngineRestart];
   };
 
-  FlutterRendererConfig rendererConfig = [_renderer createRendererConfig];
+  FlutterRendererConfig rendererConfig = [[_renderers  objectForKey:@0] createRendererConfig];
   FlutterEngineResult result = _embedderAPI.Initialize(
       FLUTTER_ENGINE_VERSION, &rendererConfig, &flutterArguments, (__bridge void*)(self), &_engine);
   if (result != kSuccess) {
@@ -398,6 +400,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
 - (FlutterView*) createFlutterView {
     FlutterMetalRenderer* renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
+    [_renderers setObject: renderer forKey: @2];
     id<MTLDevice> device = renderer.device;
     id<MTLCommandQueue> commandQueue = renderer.commandQueue;
     if (!device || !commandQueue) {
@@ -424,7 +427,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 - (void)setViewController:(FlutterViewController*)controller {
   if (_viewController != controller) {
     _viewController = controller;
-    [_renderer setFlutterView:controller.flutterView];
+    [[_renderers objectForKey: @0] setFlutterView:controller.flutterView];
 
     if (_semanticsEnabled && _bridge) {
       _bridge->UpdateDelegate(
@@ -448,20 +451,20 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   __weak FlutterEngine* weakSelf = self;
 
   if ([FlutterRenderingBackend renderUsingMetal]) {
-    FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>(_renderer);
+    FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([_renderers objectForKey: @0]);
     _macOSCompositor = std::make_unique<flutter::FlutterMetalCompositor>(
         _viewController, _platformViewController, metalRenderer.device);
     _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
       if (has_flutter_content) {
         FlutterMetalRenderer* metalRenderer =
-            reinterpret_cast<FlutterMetalRenderer*>(weakSelf.renderer);
+            reinterpret_cast<FlutterMetalRenderer*>([weakSelf.renderers objectForKey: @0]);
         return [metalRenderer present:0 /*=textureID*/] == YES;
       } else {
         return true;
       }
     });
   } else {
-    FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>(_renderer);
+    FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>([_renderers objectForKey: @0]);
     [openGLRenderer.openGLContext makeCurrentContext];
     _macOSCompositor = std::make_unique<flutter::FlutterGLCompositor>(_viewController,
                                                                       openGLRenderer.openGLContext);
@@ -469,7 +472,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
     _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
       if (has_flutter_content) {
         FlutterOpenGLRenderer* openGLRenderer =
-            reinterpret_cast<FlutterOpenGLRenderer*>(weakSelf.renderer);
+            reinterpret_cast<FlutterOpenGLRenderer*>([weakSelf.renderers objectForKey: @0]);
         return [openGLRenderer glPresent] == YES;
       } else {
         return true;
@@ -806,7 +809,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
 - (int64_t)registerTexture:(id<FlutterTexture>)texture {
   NSLog(@"1111 registerTexture");
-  return [_renderer registerTexture:texture];
+  return [[_renderers objectForKey: @0] registerTexture:texture];
 }
 
 - (BOOL)registerTextureWithID:(int64_t)textureId {
@@ -815,7 +818,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
 - (void)textureFrameAvailable:(int64_t)textureID {
     NSLog(@"1111 textureFrameAvailable");
-  [_renderer textureFrameAvailable:textureID];
+  [[_renderers objectForKey: @0] textureFrameAvailable:textureID];
 }
 
 - (BOOL)markTextureFrameAvailable:(int64_t)textureID {
@@ -824,7 +827,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
 - (void)unregisterTexture:(int64_t)textureID {
       NSLog(@"1111 unregisterTexture");
-  [_renderer unregisterTexture:textureID];
+  [[_renderers objectForKey: @0] unregisterTexture:textureID];
 }
 
 - (BOOL)unregisterTextureWithID:(int64_t)textureID {

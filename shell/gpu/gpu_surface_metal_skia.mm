@@ -96,7 +96,7 @@ std::unique_ptr<SurfaceFrame> GPUSurfaceMetalSkia::AcquireFrame(const SkISize& f
     case MTLRenderTargetType::kCAMetalLayer:
       return AcquireFrameFromCAMetalLayer(frame_size);
     case MTLRenderTargetType::kMTLTexture:
-      return AcquireFrameFromMTLTexture(frame_size);
+      return AcquireFrameFromMTLTexture(frame_size, id_);
     default:
       FML_CHECK(false) << "Unknown MTLRenderTargetType type.";
   }
@@ -189,8 +189,8 @@ std::unique_ptr<SurfaceFrame> GPUSurfaceMetalSkia::AcquireFrameFromCAMetalLayer(
 }
 
 std::unique_ptr<SurfaceFrame> GPUSurfaceMetalSkia::AcquireFrameFromMTLTexture(
-    const SkISize& frame_info) {
-  GPUMTLTextureInfo texture = delegate_->GetMTLTexture(frame_info);
+    const SkISize& frame_info, int64_t view_id) {
+  GPUMTLTextureInfo texture = delegate_->GetMTLTexture(frame_info, view_id);
   id<MTLTexture> mtl_texture = (id<MTLTexture>)(texture.texture);
 
   if (!mtl_texture) {
@@ -207,7 +207,7 @@ std::unique_ptr<SurfaceFrame> GPUSurfaceMetalSkia::AcquireFrameFromMTLTexture(
     return nullptr;
   }
 
-  auto submit_callback = [texture = texture, delegate = delegate_](
+  auto submit_callback = [texture = texture, delegate = delegate_, view_id = id_](
                              const SurfaceFrame& surface_frame, SkCanvas* canvas) -> bool {
     TRACE_EVENT0("flutter", "GPUSurfaceMetal::PresentTexture");
     if (canvas == nullptr) {
@@ -220,7 +220,7 @@ std::unique_ptr<SurfaceFrame> GPUSurfaceMetalSkia::AcquireFrameFromMTLTexture(
       canvas->flush();
     }
 
-    return delegate->PresentTexture(texture);
+    return delegate->PresentTexture(texture, view_id);
   };
 
   SurfaceFrame::FramebufferInfo framebuffer_info;

@@ -39,8 +39,9 @@ class Surface {
 
   int64_t GetId() const;
 
- private:
+ protected:
   const int64_t id_;
+ private:
   FML_DISALLOW_COPY_AND_ASSIGN(Surface);
 };
 

@@ -70,12 +70,12 @@ bool EmbedderSurfaceMetal::PresentDrawable(GrMTLHandle drawable) const {
   return false;
 }
 
-GPUMTLTextureInfo EmbedderSurfaceMetal::GetMTLTexture(const SkISize& frame_info) const {
-  return metal_dispatch_table_.get_texture(frame_info);
+GPUMTLTextureInfo EmbedderSurfaceMetal::GetMTLTexture(const SkISize& frame_info, int64_t view_id) const {
+  return metal_dispatch_table_.get_texture(frame_info, view_id);
 }
 
-bool EmbedderSurfaceMetal::PresentTexture(GPUMTLTextureInfo texture) const {
-  return metal_dispatch_table_.present(texture);
+bool EmbedderSurfaceMetal::PresentTexture(GPUMTLTextureInfo texture, int64_t view_id) const {
+  return metal_dispatch_table_.present(texture, view_id);
 }
 
 }  // namespace flutter

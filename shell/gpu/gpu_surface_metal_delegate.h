@@ -77,7 +77,7 @@ class GPUSurfaceMetalDelegate {
   /// @brief Returns the handle to the MTLTexture to render to. This is only
   /// called when the specified render target type is `kMTLTexture`.
   ///
-  virtual GPUMTLTextureInfo GetMTLTexture(const SkISize& frame_info) const = 0;
+  virtual GPUMTLTextureInfo GetMTLTexture(const SkISize& frame_info, int64_t view_id) const = 0;
 
   //------------------------------------------------------------------------------
   /// @brief Presents the texture with `texture_id` to the "screen".
@@ -87,7 +87,7 @@ class GPUSurfaceMetalDelegate {
   ///
   /// @see |GPUSurfaceMetalDelegate::GetMTLTexture|
   ///
-  virtual bool PresentTexture(GPUMTLTextureInfo texture) const = 0;
+  virtual bool PresentTexture(GPUMTLTextureInfo texture, int64_t view_id) const = 0;
 
   //------------------------------------------------------------------------------
   /// @brief Whether to allow drawing to the surface when the GPU is disabled

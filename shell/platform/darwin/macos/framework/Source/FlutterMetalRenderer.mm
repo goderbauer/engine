@@ -15,12 +15,12 @@
 static FlutterMetalTexture OnGetNextDrawable(FlutterEngine* engine,
                                              const FlutterFrameInfo* frameInfo) {
   CGSize size = CGSizeMake(frameInfo->size.width, frameInfo->size.height);
-  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>(engine.renderer);
+  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey: @(frameInfo->view_id)]);
   return [metalRenderer createTextureForSize:size];
 }
 
 static bool OnPresentDrawable(FlutterEngine* engine, const FlutterMetalTexture* texture) {
-  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>(engine.renderer);
+  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey: @(texture->view_id)]);
   return [metalRenderer present:texture->texture_id];
 }
 
@@ -29,7 +29,7 @@ static bool OnAcquireExternalTexture(FlutterEngine* engine,
                                      size_t width,
                                      size_t height,
                                      FlutterMetalExternalTexture* metalTexture) {
-  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>(engine.renderer);
+  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey: @0]);
   return [metalRenderer populateTextureWithIdentifier:textureIdentifier metalTexture:metalTexture];
 }
 
