@@ -752,6 +752,25 @@ DartVM* Shell::GetDartVM() {
   return &vm_;
 }
 
+void Shell::AddSurface(std::unique_ptr<Surface> surface,
+                                  int64_t view_id) {
+
+  auto raster_task =
+      fml::MakeCopyable([&waiting_for_first_frame = waiting_for_first_frame_,
+                         rasterizer = rasterizer_->GetWeakPtr(),  //
+                         surface = std::move(surface)]() mutable {
+        if (rasterizer) {
+          // Enables the thread merger which may be used by the external view
+          // embedder.
+          rasterizer->EnableThreadMergerIfNeeded();
+          rasterizer->Setup(std::move(surface));
+        }
+
+        waiting_for_first_frame.store(true);
+      });
+      fml::TaskRunner::RunNowOrPostTask(task_runners_.GetRasterTaskRunner(), raster_task);
+}
+
 // |PlatformView::Delegate|
 void Shell::OnPlatformViewCreated(std::unique_ptr<Surface> surface,
                                   int64_t view_id) {

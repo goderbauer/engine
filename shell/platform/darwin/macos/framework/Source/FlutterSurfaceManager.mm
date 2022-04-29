@@ -61,6 +61,7 @@ static const double kIdleDelay = 1.0;
 #ifndef NDEBUG
   // swapBuffers should not be called unless a frame was drawn
   @synchronized(self) {
+    NSLog(@"swapBuffer: %@", self);
     assert(_frameInProgress);
   }
 #endif
@@ -100,6 +101,7 @@ static const double kIdleDelay = 1.0;
 
 - (void)ensureBackBuffer {
   @synchronized(self) {
+    NSLog(@"ensureBackBuffer: %@", self);
     _frameInProgress = YES;
     if (_ioSurfaces[kFlutterSurfaceManagerBackBuffer] == nil) {
       // Restore previously released backbuffer

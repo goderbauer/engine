@@ -1580,6 +1580,57 @@ FlutterEngineResult FlutterEngineRunInitialized(
 }
 
 FLUTTER_EXPORT
+FlutterEngineResult FlutterEngineAddRenderSurface(FLUTTER_API_SYMBOL(FlutterEngine)
+                                                  engine,
+                                            const FlutterRendererConfig* config, void* user_data) {
+  if (engine == nullptr) {
+    return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
+  }
+
+  std::function<bool(flutter::GPUMTLTextureInfo texture)> metal_present =
+      [ptr = config->metal.present_drawable_callback,
+       user_data](flutter::GPUMTLTextureInfo texture) {
+        FlutterMetalTexture embedder_texture;
+        embedder_texture.struct_size = sizeof(FlutterMetalTexture);
+        embedder_texture.texture = texture.texture;
+        embedder_texture.texture_id = texture.texture_id;
+        return ptr(user_data, &embedder_texture);
+      };
+  auto metal_get_texture =
+      [ptr = config->metal.get_next_drawable_callback,
+       user_data](const SkISize& frame_size) -> flutter::GPUMTLTextureInfo {
+    FlutterFrameInfo frame_info = {};
+    frame_info.struct_size = sizeof(FlutterFrameInfo);
+    frame_info.size = {static_cast<uint32_t>(frame_size.width()),
+                       static_cast<uint32_t>(frame_size.height())};
+    flutter::GPUMTLTextureInfo texture_info;
+
+    FlutterMetalTexture metal_texture = ptr(user_data, &frame_info);
+    texture_info.texture_id = metal_texture.texture_id;
+    texture_info.texture = metal_texture.texture;
+    return texture_info;
+  };
+
+  flutter::EmbedderSurfaceMetal::MetalDispatchTable metal_dispatch_table = {
+      .present = metal_present,
+      .get_texture = metal_get_texture,
+  };
+
+    auto embedder_engine = reinterpret_cast<flutter::EmbedderEngine*>(engine);
+    embedder_engine->surface =
+          std::make_unique<flutter::EmbedderSurfaceMetal>(
+          const_cast<flutter::GPUMTLDeviceHandle>(config->metal.device),
+          const_cast<flutter::GPUMTLCommandQueueHandle>(
+              config->metal.present_command_queue),
+          metal_dispatch_table, nullptr);
+
+
+  embedder_engine->GetShell().AddSurface(embedder_engine->surface->CreateGPUSurface(2), 2);
+
+  return kSuccess;
+}
+
+FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineDeinitialize(FLUTTER_API_SYMBOL(FlutterEngine)
                                                   engine) {
   if (engine == nullptr) {
@@ -2604,6 +2655,7 @@ FlutterEngineResult FlutterEngineGetProcAddresses(
   SET_PROC(Run, FlutterEngineRun);
   SET_PROC(Shutdown, FlutterEngineShutdown);
   SET_PROC(Initialize, FlutterEngineInitialize);
+  SET_PROC(AddRenderSurface, FlutterEngineAddRenderSurface);
   SET_PROC(Deinitialize, FlutterEngineDeinitialize);
   SET_PROC(RunInitialized, FlutterEngineRunInitialized);
   SET_PROC(SendWindowMetricsEvent, FlutterEngineSendWindowMetricsEvent);

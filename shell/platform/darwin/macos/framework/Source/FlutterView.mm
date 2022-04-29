@@ -34,6 +34,7 @@
         [[FlutterMetalResizableBackingStoreProvider alloc] initWithDevice:device
                                                              commandQueue:commandQueue
                                                                     layer:self.layer];
+    NSLog(@"init %@ with layer %@", self, self.layer);
     _resizeSynchronizer =
         [[FlutterResizeSynchronizer alloc] initWithDelegate:_resizableBackingStoreProvider];
   }
@@ -69,6 +70,7 @@
 }
 
 - (void)present {
+  NSLog(@"present: %@", self);
   [_resizeSynchronizer requestCommit];
 }
 

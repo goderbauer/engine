@@ -272,7 +272,7 @@ class FlutterView {
   ///   scheduling of frames.
   /// * [RendererBinding], the Flutter framework class which manages layout and
   ///   painting.
-  void render(Scene scene) => _render(scene, _viewId);
+  void render(Scene scene, int viewId) => _render(scene, viewId);
   void _render(Scene scene, Object viewId) native 'PlatformConfiguration_render';
 }
 

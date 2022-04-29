@@ -386,6 +386,8 @@ typedef struct {
   size_t struct_size;
   /// The size of the surface that will be backed by the fbo.
   FlutterUIntSize size;
+
+  int64_t view_id;
 } FlutterFrameInfo;
 
 /// Callback for when a frame buffer object is requested.
@@ -1867,6 +1869,11 @@ FlutterEngineResult FlutterEngineInitialize(size_t version,
                                             FLUTTER_API_SYMBOL(FlutterEngine) *
                                                 engine_out);
 
+FLUTTER_EXPORT
+FlutterEngineResult FlutterEngineAddRenderSurface(FLUTTER_API_SYMBOL(FlutterEngine)
+                                                  engine,
+                                            const FlutterRendererConfig* config, void* user_data);
+
 //------------------------------------------------------------------------------
 /// @brief      Stops running the Flutter engine instance. After this call, the
 ///             embedder is also guaranteed that no more calls to post tasks
@@ -2450,6 +2457,10 @@ typedef FlutterEngineResult (*FlutterEngineInitializeFnPtr)(
     const FlutterProjectArgs* args,
     void* user_data,
     FLUTTER_API_SYMBOL(FlutterEngine) * engine_out);
+typedef FlutterEngineResult (*FlutterEngineAddRenderSurfaceFnPtr) (
+      FLUTTER_API_SYMBOL(FlutterEngine) engine,
+    const FlutterRendererConfig* config,
+    void* user_data);
 typedef FlutterEngineResult (*FlutterEngineDeinitializeFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine);
 typedef FlutterEngineResult (*FlutterEngineRunInitializedFnPtr)(
@@ -2558,6 +2569,7 @@ typedef struct {
   FlutterEngineRunFnPtr Run;
   FlutterEngineShutdownFnPtr Shutdown;
   FlutterEngineInitializeFnPtr Initialize;
+  FlutterEngineAddRenderSurfaceFnPtr AddRenderSurface;
   FlutterEngineDeinitializeFnPtr Deinitialize;
   FlutterEngineRunInitializedFnPtr RunInitialized;
   FlutterEngineSendWindowMetricsEventFnPtr SendWindowMetricsEvent;

@@ -21,6 +21,17 @@
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterViewController_Internal.h"
 #include "flutter/shell/platform/embedder/embedder.h"
 
+
+@interface DummyFlutterViewReshapeListener :NSObject<FlutterViewReshapeListener>
+@end
+
+@implementation DummyFlutterViewReshapeListener
+- (void)viewDidReshape:(nonnull NSView*)view {
+
+}
+@end
+
+
 /**
  * Constructs and returns a FlutterLocale struct corresponding to |locale|, which must outlive
  * the returned struct.
@@ -332,7 +343,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
     flutterArguments.aot_data = _aotData;
   }
 
-  flutterArguments.compositor = [self createFlutterCompositor];
+  // flutterArguments.compositor = [self createFlutterCompositor];
 
   flutterArguments.on_pre_engine_restart_callback = [](void* user_data) {
     FlutterEngine* engine = (__bridge FlutterEngine*)user_data;
@@ -383,6 +394,31 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   if (result != kSuccess) {
     NSLog(@"Failed to load AOT data from: %@", elfPath);
   }
+}
+
+- (FlutterView*) createFlutterView {
+    FlutterMetalRenderer* renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
+    id<MTLDevice> device = renderer.device;
+    id<MTLCommandQueue> commandQueue = renderer.commandQueue;
+    if (!device || !commandQueue) {
+      NSLog(@"Unable to create FlutterView; no MTLDevice or MTLCommandQueue available.");
+      // return;
+    }
+    FlutterView* flutterView = [[FlutterView alloc] initWithMTLDevice:device
+                                            commandQueue:commandQueue
+                                         reshapeListener:[DummyFlutterViewReshapeListener alloc]];
+
+    NSLog(@"created view: %@", flutterView);
+    [renderer setFlutterView:flutterView];
+    FlutterRendererConfig config = [renderer createRendererConfig];
+
+    _embedderAPI.AddRenderSurface(
+      _engine,
+      &config,
+      (__bridge void*)(self)
+    );
+
+    return flutterView;
 }
 
 - (void)setViewController:(FlutterViewController*)controller {
@@ -769,6 +805,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 #pragma mark - FlutterTextureRegistrar
 
 - (int64_t)registerTexture:(id<FlutterTexture>)texture {
+  NSLog(@"1111 registerTexture");
   return [_renderer registerTexture:texture];
 }
 
@@ -777,6 +814,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 }
 
 - (void)textureFrameAvailable:(int64_t)textureID {
+    NSLog(@"1111 textureFrameAvailable");
   [_renderer textureFrameAvailable:textureID];
 }
 
@@ -785,6 +823,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 }
 
 - (void)unregisterTexture:(int64_t)textureID {
+      NSLog(@"1111 unregisterTexture");
   [_renderer unregisterTexture:textureID];
 }
 

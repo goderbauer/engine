@@ -23,7 +23,6 @@ class ShellTestPlatformViewMetal final : public ShellTestPlatformView,
                              CreateVsyncWaiter create_vsync_waiter,
                              std::shared_ptr<ShellTestExternalViewEmbedder>
                                  shell_test_external_view_embedder);
-
   // |ShellTestPlatformView|
   virtual ~ShellTestPlatformViewMetal() override;
 

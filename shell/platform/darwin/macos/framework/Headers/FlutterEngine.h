@@ -79,6 +79,8 @@ FLUTTER_DARWIN_EXPORT
  */
 - (void)shutDownEngine;
 
+- (nonnull id) createFlutterView;
+
 @end
 
 #endif  // FLUTTER_FLUTTERENGINE_H_

@@ -38,7 +38,7 @@ static bool OnAcquireExternalTexture(FlutterEngine* engine,
 @implementation FlutterMetalRenderer {
   __weak FlutterEngine* _engine;
 
-  FlutterView* _flutterView;
+  FlutterView* _flutterView; // needs to support multipe views
 
   FlutterDarwinContextMetal* _darwinMetalContext;
 }
@@ -76,12 +76,9 @@ static bool OnAcquireExternalTexture(FlutterEngine* engine,
       .metal.struct_size = sizeof(FlutterMetalRendererConfig),
       .metal.device = (__bridge FlutterMetalDeviceHandle)_device,
       .metal.present_command_queue = (__bridge FlutterMetalCommandQueueHandle)_commandQueue,
-      .metal.get_next_drawable_callback =
-          reinterpret_cast<FlutterMetalTextureCallback>(OnGetNextDrawable),
-      .metal.present_drawable_callback =
-          reinterpret_cast<FlutterMetalPresentCallback>(OnPresentDrawable),
-      .metal.external_texture_frame_callback =
-          reinterpret_cast<FlutterMetalTextureFrameCallback>(OnAcquireExternalTexture),
+      .metal.get_next_drawable_callback = reinterpret_cast<FlutterMetalTextureCallback>(OnGetNextDrawable),
+      .metal.present_drawable_callback = reinterpret_cast<FlutterMetalPresentCallback>(OnPresentDrawable),
+      .metal.external_texture_frame_callback = reinterpret_cast<FlutterMetalTextureFrameCallback>(OnAcquireExternalTexture),
   };
   return config;
 }

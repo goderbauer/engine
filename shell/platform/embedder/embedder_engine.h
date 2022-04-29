@@ -14,6 +14,7 @@
 #include "flutter/shell/platform/embedder/embedder.h"
 #include "flutter/shell/platform/embedder/embedder_external_texture_resolver.h"
 #include "flutter/shell/platform/embedder/embedder_thread_host.h"
+#include "flutter/shell/platform/embedder/embedder_surface.h"
 namespace flutter {
 
 struct ShellArgs;
@@ -84,6 +85,8 @@ class EmbedderEngine {
   bool ScheduleFrame();
 
   Shell& GetShell();
+
+  std::unique_ptr<EmbedderSurface> surface;
 
  private:
   const std::unique_ptr<EmbedderThreadHost> thread_host_;
