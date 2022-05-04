@@ -37,7 +37,10 @@ void Window::DispatchPointerDataPacket(const PointerDataPacket& packet) {
 }
 
 void Window::UpdateWindowMetrics(const ViewportMetrics& metrics) {
-  viewport_metrics_ = metrics;
+  // if (metrics.view_id == window_id_) {
+    // TODO: need multiple window objects.
+    viewport_metrics_ = metrics;
+  // }
 
   std::shared_ptr<tonic::DartState> dart_state = library_.dart_state().lock();
   if (!dart_state) {
@@ -47,7 +50,7 @@ void Window::UpdateWindowMetrics(const ViewportMetrics& metrics) {
   tonic::CheckAndHandleError(tonic::DartInvokeField(
       library_.value(), "_updateWindowMetrics",
       {
-          tonic::ToDart(window_id_),
+          tonic::ToDart(metrics.view_id),
           tonic::ToDart(metrics.device_pixel_ratio),
           tonic::ToDart(metrics.physical_width),
           tonic::ToDart(metrics.physical_height),

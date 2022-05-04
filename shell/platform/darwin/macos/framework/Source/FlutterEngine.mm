@@ -244,7 +244,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   } else {
     [_renderers setObject: [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self] forKey: @0];
   }
-  NSLog(@"renderers: %@", _renderers);
+  // NSLog(@"renderers: %@", _renderers);
 
   NSNotificationCenter* notificationCenter = [NSNotificationCenter defaultCenter];
   [notificationCenter addObserver:self
@@ -367,7 +367,9 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   }
 
   [self sendUserLocales];
-  [self updateWindowMetrics];
+  if (_viewController.viewLoaded) {
+    [self updateWindowMetrics: _viewController.flutterView id: 0];
+  }
   [self updateDisplayConfig];
   return YES;
 }
@@ -411,7 +413,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
                                             commandQueue:commandQueue
                                          reshapeListener:[DummyFlutterViewReshapeListener alloc]];
 
-    NSLog(@"created view: %@", flutterView);
+    // NSLog(@"created view: %@", flutterView);
     [renderer setFlutterView:flutterView];
     FlutterRendererConfig config = [renderer createRendererConfig];
 
@@ -420,6 +422,9 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
       &config,
       (__bridge void*)(self)
     );
+
+    // TODO: metrics not valid here.
+    // [self updateWindowMetrics:flutterView id: 2];
 
     return flutterView;
 }
@@ -556,11 +561,10 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   return _bridge;
 }
 
-- (void)updateWindowMetrics {
-  if (!_engine || !_viewController.viewLoaded) {
+- (void)updateWindowMetrics:(FlutterView*)view id:(int64_t)view_id {
+  if (!_engine) {
     return;
   }
-  NSView* view = _viewController.flutterView;
   CGRect scaledBounds = [view convertRectToBacking:view.bounds];
   CGSize scaledSize = scaledBounds.size;
   double pixelRatio = view.bounds.size.width == 0 ? 1 : scaledSize.width / view.bounds.size.width;
@@ -572,8 +576,9 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
       .pixel_ratio = pixelRatio,
       .left = static_cast<size_t>(scaledBounds.origin.x),
       .top = static_cast<size_t>(scaledBounds.origin.y),
+      .view_id = view_id,
   };
-  _embedderAPI.SendWindowMetricsEvent(_engine, &windowMetricsEvent, 0);
+  _embedderAPI.SendWindowMetricsEvent(_engine, &windowMetricsEvent);
 }
 
 - (void)sendPointerEvent:(const FlutterPointerEvent&)event {

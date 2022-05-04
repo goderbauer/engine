@@ -42,7 +42,7 @@
 /**
  * Informs the engine that the associated view controller's view size has changed.
  */
-- (void)updateWindowMetrics;
+- (void)updateWindowMetrics:(nonnull FlutterView*)view id:(int64_t)view_id;
 
 /**
  * Dispatches the given pointer event data to engine.

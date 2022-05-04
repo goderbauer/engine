@@ -733,7 +733,7 @@ fml::WeakPtr<Engine> Shell::GetEngine() {
 
 fml::WeakPtr<PlatformView> Shell::GetPlatformView(int64_t view_id) {
   FML_DCHECK(is_setup_);
-  FML_LOG(ERROR) << "Get PlatformView: " << view_id;
+  // FML_LOG(ERROR) << "Get PlatformView: " << view_id;
 
   return weak_platform_views_.at(view_id);
 }

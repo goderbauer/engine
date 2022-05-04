@@ -717,7 +717,7 @@ static void CommonInit(FlutterViewController* controller) {
  * Responds to view reshape by notifying the engine of the change in dimensions.
  */
 - (void)viewDidReshape:(NSView*)view {
-  [_engine updateWindowMetrics];
+  [_engine updateWindowMetrics: self.flutterView id: 0];
 }
 
 #pragma mark - FlutterPluginRegistry

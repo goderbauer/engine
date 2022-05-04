@@ -709,6 +709,8 @@ typedef struct {
   double physical_view_inset_bottom;
   /// Left inset of window.
   double physical_view_inset_left;
+
+  int64_t view_id;
 } FlutterWindowMetricsEvent;
 
 /// The phase of the pointer event.
@@ -1911,8 +1913,7 @@ FlutterEngineResult FlutterEngineRunInitialized(
 FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineSendWindowMetricsEvent(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
-    const FlutterWindowMetricsEvent* event,
-    int64_t view_id);
+    const FlutterWindowMetricsEvent* event);
 
 FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineSendPointerEvent(
@@ -2469,8 +2470,7 @@ typedef FlutterEngineResult (*FlutterEngineRunInitializedFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine);
 typedef FlutterEngineResult (*FlutterEngineSendWindowMetricsEventFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
-    const FlutterWindowMetricsEvent* event,
-    int64_t view_id);
+    const FlutterWindowMetricsEvent* event);
 typedef FlutterEngineResult (*FlutterEngineSendPointerEventFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
     const FlutterPointerEvent* events,

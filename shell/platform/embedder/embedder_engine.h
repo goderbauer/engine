@@ -48,7 +48,7 @@ class EmbedderEngine {
 
   bool IsValid() const;
 
-  bool SetViewportMetrics(flutter::ViewportMetrics metrics, int64_t view_id);
+  bool SetViewportMetrics(flutter::ViewportMetrics metrics);
 
   bool DispatchPointerDataPacket(
       std::unique_ptr<flutter::PointerDataPacket> packet);

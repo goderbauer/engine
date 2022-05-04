@@ -70,7 +70,7 @@
 }
 
 - (void)present {
-  NSLog(@"present: %@", self);
+  // NSLog(@"present: %@", self);
   [_resizeSynchronizer requestCommit];
 }
 

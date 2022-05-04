@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 #import "FlutterWindowPlugin.h"
+#import "FlutterEngine_Internal.h"
 
 #include <map>
 
@@ -93,11 +94,12 @@ static NSString* const kChannelName = @"flutter/window";
           [myWindow setTitle:@"Test Test"];
 
           // NSView   *myView = [[DemoView alloc] initWithFrame:graphicsRect];
-          NSView   *myView = [_engine createFlutterView];
+          FlutterView   *myView = [_engine createFlutterView];
           [myWindow setContentView:myView ];    // set window's view
 
       // [myWindow setDelegate:*myView ];       // set window's delegate
       [myWindow makeKeyAndOrderFront: nil]; // display window
+      [_engine updateWindowMetrics:myView id: 2];
     // });
   }
 }

@@ -74,6 +74,11 @@ class FlutterView {
     return platformDispatcher._viewConfigurations[_viewId]!;
   }
 
+  @override
+  String toString() {
+    return '$runtimeType($_viewId, $physicalSize)';
+  }
+
   /// The number of device pixels for each logical pixel for the screen this
   /// view is displayed on.
   ///

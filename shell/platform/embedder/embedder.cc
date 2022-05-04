@@ -1660,8 +1660,7 @@ FlutterEngineResult FlutterEngineShutdown(FLUTTER_API_SYMBOL(FlutterEngine)
 
 FlutterEngineResult FlutterEngineSendWindowMetricsEvent(
     FLUTTER_API_SYMBOL(FlutterEngine) engine,
-    const FlutterWindowMetricsEvent* flutter_metrics,
-    int64_t view_id) {
+    const FlutterWindowMetricsEvent* flutter_metrics) {
   if (engine == nullptr || flutter_metrics == nullptr) {
     return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
   }
@@ -1679,6 +1678,7 @@ FlutterEngineResult FlutterEngineSendWindowMetricsEvent(
       SAFE_ACCESS(flutter_metrics, physical_view_inset_bottom, 0.0);
   metrics.physical_view_inset_left =
       SAFE_ACCESS(flutter_metrics, physical_view_inset_left, 0.0);
+  metrics.view_id = SAFE_ACCESS(flutter_metrics, view_id, 0);
 
   if (metrics.device_pixel_ratio <= 0.0) {
     return LOG_EMBEDDER_ERROR(
@@ -1705,7 +1705,7 @@ FlutterEngineResult FlutterEngineSendWindowMetricsEvent(
   }
 
   return reinterpret_cast<flutter::EmbedderEngine*>(engine)->SetViewportMetrics(
-             std::move(metrics), view_id)
+             std::move(metrics))
              ? kSuccess
              : LOG_EMBEDDER_ERROR(kInvalidArguments,
                                   "Viewport metrics were invalid.");

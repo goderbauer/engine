@@ -38,7 +38,8 @@ ViewportMetrics::ViewportMetrics(
     double p_physical_touch_slop,
     const std::vector<double> p_physical_display_features_bounds,
     const std::vector<int> p_physical_display_features_type,
-    const std::vector<int> p_physical_display_features_state)
+    const std::vector<int> p_physical_display_features_state,
+    int64_t p_view_id)
     : device_pixel_ratio(p_device_pixel_ratio),
       physical_width(p_physical_width),
       physical_height(p_physical_height),
@@ -59,7 +60,8 @@ ViewportMetrics::ViewportMetrics(
       physical_touch_slop(p_physical_touch_slop),
       physical_display_features_bounds(p_physical_display_features_bounds),
       physical_display_features_type(p_physical_display_features_type),
-      physical_display_features_state(p_physical_display_features_state) {}
+      physical_display_features_state(p_physical_display_features_state),
+      view_id(p_view_id) {}
 
 bool operator==(const ViewportMetrics& a, const ViewportMetrics& b) {
   return a.device_pixel_ratio == b.device_pixel_ratio &&

@@ -533,7 +533,7 @@ RasterStatus Rasterizer::DrawToSurfaceUnsafe(
     flutter::LayerTree& layer_tree) {
   TRACE_EVENT0("flutter", "Rasterizer::DrawToSurfaceUnsafe");
   auto& surface = surfaces_.at(layer_tree.view_id);
-  FML_LOG(ERROR) << "DrawToSurface: " << layer_tree.view_id;
+  // FML_LOG(ERROR) << "DrawToSurface: " << layer_tree.view_id;
   FML_DCHECK(surface);
 
   compositor_context_->ui_time().SetLapTime(

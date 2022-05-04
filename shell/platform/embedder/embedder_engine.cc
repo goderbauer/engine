@@ -99,13 +99,12 @@ bool EmbedderEngine::NotifyDestroyed() {
   return true;
 }
 
-bool EmbedderEngine::SetViewportMetrics(flutter::ViewportMetrics metrics,
-                                        int64_t view_id) {
+bool EmbedderEngine::SetViewportMetrics(flutter::ViewportMetrics metrics) {
   if (!IsValid()) {
     return false;
   }
 
-  auto platform_view = shell_->GetPlatformView(view_id);
+  auto platform_view = shell_->GetPlatformView(0);
   if (!platform_view) {
     return false;
   }
