@@ -823,11 +823,11 @@ class SceneBuilder extends NativeFieldWrapperClass1 {
   ///
   /// After calling this function, the scene builder object is invalid and
   /// cannot be used further.
-  Scene build() {
+  Scene build(double devicePixelRatio, Size physicalSize) {
     final Scene scene = Scene._();
-    _build(scene);
+    _build(scene, devicePixelRatio, physicalSize.width, physicalSize.height);
     return scene;
   }
 
-  void _build(Scene outScene) native 'SceneBuilder_build';
+  void _build(Scene outScene, double devicePixelRatio, double physicalWidth, double physicalHeight) native 'SceneBuilder_build';
 }

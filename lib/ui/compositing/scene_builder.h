@@ -117,7 +117,10 @@ class SceneBuilder : public RefCountedDartWrappable<SceneBuilder> {
   void setCheckerboardRasterCacheImages(bool checkerboard);
   void setCheckerboardOffscreenLayers(bool checkerboard);
 
-  void build(Dart_Handle scene_handle);
+  void build(Dart_Handle scene_handle,
+                   double device_pixel_ratio,
+                   double physical_width,
+                   double physical_height);
 
   const std::vector<std::shared_ptr<ContainerLayer>>& layer_stack() {
     return layer_stack_;

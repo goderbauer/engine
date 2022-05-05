@@ -83,7 +83,7 @@ static NSString* const kChannelName = @"flutter/window";
   NSLog(@">>> method %@", call.method);
   if ([call.method isEqualToString:@"new"]) {
     // dispatch_async(dispatch_get_main_queue(), ^{
-      NSRect    graphicsRect = NSMakeRect(100.0, 350.0, 400.0, 400.0);
+      NSRect    graphicsRect = NSMakeRect(100.0, 350.0, 844.0, 626.0);
       NSWindow * myWindow = [ [NSWindow alloc]
                  initWithContentRect: graphicsRect
                            styleMask:NSTitledWindowMask

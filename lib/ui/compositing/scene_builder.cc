@@ -337,12 +337,18 @@ void SceneBuilder::setCheckerboardOffscreenLayers(bool checkerboard) {
   checkerboard_offscreen_layers_ = checkerboard;
 }
 
-void SceneBuilder::build(Dart_Handle scene_handle) {
+void SceneBuilder::build(Dart_Handle scene_handle,
+                         double device_pixel_ratio,
+                         double physical_width,
+                         double physical_height) {
   FML_DCHECK(layer_stack_.size() >= 1);
 
   Scene::create(
       scene_handle, std::move(layer_stack_[0]), rasterizer_tracing_threshold_,
-      checkerboard_raster_cache_images_, checkerboard_offscreen_layers_);
+      checkerboard_raster_cache_images_, checkerboard_offscreen_layers_,
+                   device_pixel_ratio,
+                   physical_width,
+                   physical_height);
   layer_stack_.clear();
   ClearDartWrapper();  // may delete this object.
 }
