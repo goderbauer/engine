@@ -381,6 +381,10 @@ class PlatformConfiguration final {
   ///
   void ReportTimings(std::vector<int64_t> timings);
 
+  // Dispatch a packet to the framework that indicates one or a few pointer
+  // events.
+  void DispatchPointerDataPacket(const PointerDataPacket& packet);
+
   //----------------------------------------------------------------------------
   /// @brief      Registers the native handlers for Dart functions that this
   ///             class handles.
@@ -432,6 +436,7 @@ class PlatformConfiguration final {
   tonic::DartPersistentValue update_accessibility_features_;
   tonic::DartPersistentValue dispatch_platform_message_;
   tonic::DartPersistentValue dispatch_semantics_action_;
+  tonic::DartPersistentValue dispatch_pointer_data_paket_;
   tonic::DartPersistentValue begin_frame_;
   tonic::DartPersistentValue draw_frame_;
   tonic::DartPersistentValue report_timings_;

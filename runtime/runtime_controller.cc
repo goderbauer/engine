@@ -241,7 +241,7 @@ bool RuntimeController::DispatchPointerDataPacket(
   if (auto* platform_configuration = GetPlatformConfigurationIfAvailable()) {
     TRACE_EVENT1("flutter", "RuntimeController::DispatchPointerDataPacket",
                  "mode", "basic");
-    platform_configuration->get_window(0)->DispatchPointerDataPacket(packet);
+    platform_configuration->DispatchPointerDataPacket(packet);
     return true;
   }
 
