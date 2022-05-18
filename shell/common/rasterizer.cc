@@ -505,7 +505,6 @@ RasterStatus Rasterizer::DoDraw(
 RasterStatus Rasterizer::DrawToSurface(
     FrameTimingsRecorder& frame_timings_recorder,
     flutter::LayerTree& layer_tree) {
-  TRACE_EVENT0("flutter", "Rasterizer::DrawToSurface");
   auto& surface = surfaces_.at(layer_tree.view_id);
   FML_DCHECK(surface);
 
@@ -531,9 +530,9 @@ RasterStatus Rasterizer::DrawToSurface(
 RasterStatus Rasterizer::DrawToSurfaceUnsafe(
     FrameTimingsRecorder& frame_timings_recorder,
     flutter::LayerTree& layer_tree) {
-  TRACE_EVENT0("flutter", "Rasterizer::DrawToSurfaceUnsafe");
   auto& surface = surfaces_.at(layer_tree.view_id);
   // FML_LOG(ERROR) << "DrawToSurface: " << layer_tree.view_id;
+  FML_DCHECK(surface);
   FML_DCHECK(surface);
 
   compositor_context_->ui_time().SetLapTime(
@@ -617,8 +616,7 @@ RasterStatus Rasterizer::DrawToSurfaceUnsafe(
                                  damage.get()          // frame damage
         );
     if (raster_status == RasterStatus::kFailed ||
-        raster_status == RasterStatus::kSkipAndRetry ||
-        raster_status == RasterStatus::kDiscarded) {
+        raster_status == RasterStatus::kSkipAndRetry) {
       return raster_status;
     }
 
@@ -645,7 +643,6 @@ RasterStatus Rasterizer::DrawToSurfaceUnsafe(
     FireNextFrameCallbackIfPresent();
 
     if (surface->GetContext()) {
-      TRACE_EVENT0("flutter", "PerformDeferredSkiaCleanup");
       surface->GetContext()->performDeferredCleanup(kSkiaCleanupExpiration);
     }
 
