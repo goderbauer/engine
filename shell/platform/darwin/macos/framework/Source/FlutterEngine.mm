@@ -22,6 +22,7 @@
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterRenderingBackend.h"
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterViewController_Internal.h"
 #include "flutter/shell/platform/embedder/embedder.h"
+#import "flutter/shell/platform/darwin/macos/framework/Source/FlutterWindowPlugin.h"
 
 
 @interface DummyFlutterViewReshapeListener :NSObject<FlutterViewReshapeListener>
@@ -453,6 +454,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 }
 
 - (void)setViewController:(FlutterViewController*)controller {
+  NSLog(@"setViewController");
   if (_viewController != controller) {
     _viewController = controller;
     [[_renderers objectForKey: @0] setFlutterView:controller.flutterView];
@@ -786,6 +788,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   __weak FlutterEngine* weakSelf = self;
   [FlutterMouseCursorPlugin registerWithRegistrar:[self registrarForPlugin:@"mousecursor"]];
   [FlutterMenuPlugin registerWithRegistrar:[self registrarForPlugin:@"menu"]];
+  [FlutterWindowPlugin registerWithRegistrar:[self registrarForPlugin:@"window"] engine: weakSelf];
   _settingsChannel =
       [FlutterBasicMessageChannel messageChannelWithName:@"flutter/settings"
                                          binaryMessenger:self.binaryMessenger
