@@ -368,6 +368,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   };
 
   FlutterRendererConfig rendererConfig = [[_renderers  objectForKey:@0] createRendererConfig];
+    NSLog(@"running");
   FlutterEngineResult result = _embedderAPI.Initialize(
       FLUTTER_ENGINE_VERSION, &rendererConfig, &flutterArguments, (__bridge void*)(self), &_engine);
   if (result != kSuccess) {
@@ -448,21 +449,29 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 // }
 
 - (void)addViewController:(FlutterViewController*)controller {
+  NSLog(@"adding");
   id<FlutterRenderer> renderer;
   if ([FlutterRenderingBackend renderUsingMetal]) {
     renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
   } else {
     renderer = [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self];
   }
-  [_renderers setObject: renderer forKey: @(controller.id)];
-  FlutterRendererConfig config = [renderer createRendererConfig];
+  // if (controller.id == 0) {
+    [_renderers setObject: renderer forKey: @(controller.id)];
+  // }
 
-  _embedderAPI.AddRenderSurface(
-    _engine,
-    &config,
-    (__bridge void*)(self),
-    controller.id
-  );
+  if (self.running) {
+    NSLog(@"adding surface %@", @(controller.id));
+    FlutterRendererConfig config = [renderer createRendererConfig];
+
+    _embedderAPI.AddRenderSurface(
+      _engine,
+      &config,
+      (__bridge void*)(self),
+      controller.id
+    );
+  }
+
 
 
     // if (_semanticsEnabled && _bridge) {

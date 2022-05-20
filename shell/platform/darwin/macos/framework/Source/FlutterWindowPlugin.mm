@@ -89,6 +89,7 @@ static NSString* const kChannelName = @"flutter/window";
                            styleMask:NSTitledWindowMask
                                     |NSClosableWindowMask
                                     |NSMiniaturizableWindowMask
+                                    |NSWindowStyleMaskResizable
                              backing:NSBackingStoreBuffered
                                defer:NO ];
           [myWindow setTitle:@"Test Test"];
