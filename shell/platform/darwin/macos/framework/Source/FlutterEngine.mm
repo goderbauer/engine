@@ -260,12 +260,6 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
   _embedderAPI.struct_size = sizeof(FlutterEngineProcTable);
   FlutterEngineGetProcAddresses(&_embedderAPI);
-
-  if ([FlutterRenderingBackend renderUsingMetal]) {
-    [_renderers setObject: [[FlutterMetalRenderer alloc] initWithFlutterEngine:self] forKey: @0];
-  } else {
-    [_renderers setObject: [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self] forKey: @0];
-  }
   // NSLog(@"renderers: %@", _renderers);
 
   NSNotificationCenter* notificationCenter = [NSNotificationCenter defaultCenter];
@@ -293,10 +287,10 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
     return NO;
   }
 
-  if (!_allowHeadlessExecution && !_viewController) {
-    NSLog(@"Attempted to run an engine with no view controller without headless mode enabled.");
-    return NO;
-  }
+  // if (!_allowHeadlessExecution && !_viewController) {
+  //   NSLog(@"Attempted to run an engine with no view controller without headless mode enabled.");
+  //   return NO;
+  // }
 
   [self addInternalPlugins];
 
@@ -424,50 +418,61 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   }
 }
 
-- (FlutterView*) createFlutterView {
-    FlutterMetalRenderer* renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
-    [_renderers setObject: renderer forKey: @2];
-    id<MTLDevice> device = renderer.device;
-    id<MTLCommandQueue> commandQueue = renderer.commandQueue;
-    if (!device || !commandQueue) {
-      NSLog(@"Unable to create FlutterView; no MTLDevice or MTLCommandQueue available.");
-      // return;
-    }
-    FlutterView* flutterView = [[FlutterView alloc] initWithMTLDevice:device
-                                            commandQueue:commandQueue
-                                         reshapeListener:[DummyFlutterViewReshapeListener alloc]];
+// - (FlutterView*) createFlutterView {
+//     FlutterMetalRenderer* renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
+//     [_renderers setObject: renderer forKey: @2];
+//     id<MTLDevice> device = renderer.device;
+//     id<MTLCommandQueue> commandQueue = renderer.commandQueue;
+//     if (!device || !commandQueue) {
+//       NSLog(@"Unable to create FlutterView; no MTLDevice or MTLCommandQueue available.");
+//       // return;
+//     }
+//     FlutterView* flutterView = [[FlutterView alloc] initWithMTLDevice:device
+//                                             commandQueue:commandQueue
+//                                          reshapeListener:[DummyFlutterViewReshapeListener alloc]];
 
-    // NSLog(@"created view: %@", flutterView);
-    [renderer setFlutterView:flutterView];
-    FlutterRendererConfig config = [renderer createRendererConfig];
+//     // NSLog(@"created view: %@", flutterView);
+//     [renderer setFlutterView:flutterView];
+//     FlutterRendererConfig config = [renderer createRendererConfig];
 
-    _embedderAPI.AddRenderSurface(
-      _engine,
-      &config,
-      (__bridge void*)(self)
-    );
+//     _embedderAPI.AddRenderSurface(
+//       _engine,
+//       &config,
+//       (__bridge void*)(self)
+//     );
 
-    // TODO: metrics not valid here.
-    // [self updateWindowMetrics:flutterView id: 2];
+//     // TODO: metrics not valid here.
+//     // [self updateWindowMetrics:flutterView id: 2];
 
-    return flutterView;
-}
+//     return flutterView;
+// }
 
-- (void)setViewController:(FlutterViewController*)controller {
-  NSLog(@"setViewController");
-  if (_viewController != controller) {
-    _viewController = controller;
-    [[_renderers objectForKey: @0] setFlutterView:controller.flutterView];
-
-    if (_semanticsEnabled && _bridge) {
-      _bridge->UpdateDelegate(
-          std::make_unique<flutter::AccessibilityBridgeMacDelegate>(self, _viewController));
-    }
-
-    if (!controller && !_allowHeadlessExecution) {
-      [self shutDownEngine];
-    }
+- (void)addViewController:(FlutterViewController*)controller {
+  id<FlutterRenderer> renderer;
+  if ([FlutterRenderingBackend renderUsingMetal]) {
+    renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
+  } else {
+    renderer = [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self];
   }
+  [_renderers setObject: renderer forKey: @(controller.id)];
+  FlutterRendererConfig config = [renderer createRendererConfig];
+
+  _embedderAPI.AddRenderSurface(
+    _engine,
+    &config,
+    (__bridge void*)(self),
+    controller.id
+  );
+
+
+    // if (_semanticsEnabled && _bridge) {
+    //   _bridge->UpdateDelegate(
+    //       std::make_unique<flutter::AccessibilityBridgeMacDelegate>(self, _viewController));
+    // }
+
+    // if (!controller && !_allowHeadlessExecution) {
+    //   [self shutDownEngine];
+    // }
 }
 
 - (FlutterCompositor*)createFlutterCompositor {

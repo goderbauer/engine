@@ -1876,7 +1876,7 @@ FlutterEngineResult FlutterEngineInitialize(size_t version,
 FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineAddRenderSurface(FLUTTER_API_SYMBOL(FlutterEngine)
                                                   engine,
-                                            const FlutterRendererConfig* config, void* user_data);
+                                            const FlutterRendererConfig* config, void* user_data, int64_t view_id);
 
 //------------------------------------------------------------------------------
 /// @brief      Stops running the Flutter engine instance. After this call, the
@@ -2463,7 +2463,7 @@ typedef FlutterEngineResult (*FlutterEngineInitializeFnPtr)(
 typedef FlutterEngineResult (*FlutterEngineAddRenderSurfaceFnPtr) (
       FLUTTER_API_SYMBOL(FlutterEngine) engine,
     const FlutterRendererConfig* config,
-    void* user_data);
+    void* user_data, int64_t view_id);
 typedef FlutterEngineResult (*FlutterEngineDeinitializeFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine);
 typedef FlutterEngineResult (*FlutterEngineRunInitializedFnPtr)(

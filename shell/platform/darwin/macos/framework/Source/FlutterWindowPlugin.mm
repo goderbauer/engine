@@ -82,7 +82,6 @@ static NSString* const kChannelName = @"flutter/window";
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSLog(@">>> method %@", call.method);
   if ([call.method isEqualToString:@"new"]) {
-    NSLog(@"FVC: %@", [_engine viewController]);
     // dispatch_async(dispatch_get_main_queue(), ^{
       NSRect    graphicsRect = NSMakeRect(100.0, 350.0, 844.0, 626.0);
       NSWindow * myWindow = [ [NSWindow alloc]
@@ -95,12 +94,16 @@ static NSString* const kChannelName = @"flutter/window";
           [myWindow setTitle:@"Test Test"];
 
           // NSView   *myView = [[DemoView alloc] initWithFrame:graphicsRect];
-          FlutterView   *myView = [_engine createFlutterView];
-          [myWindow setContentView:myView ];    // set window's view
+          // FlutterView   *myView = [_engine createFlutterView];
+          // [myWindow setContentView:myView ];    // set window's view
+          FlutterViewController* controller = [[FlutterViewController alloc] initWithEngine:_engine nibName:nil bundle:nil];
+          [myWindow setContentViewController:controller];
+          [myWindow setFrame: graphicsRect display:YES];
 
       // [myWindow setDelegate:*myView ];       // set window's delegate
       [myWindow makeKeyAndOrderFront: nil]; // display window
-      [_engine updateWindowMetrics:myView id: 2];
+      [_engine updateWindowMetrics:controller.flutterView id: controller.id];
+      NSLog(@"New view ID: %@", @(controller.id));
     // });
   }
 }

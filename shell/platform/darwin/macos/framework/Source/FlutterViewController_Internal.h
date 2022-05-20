@@ -18,6 +18,8 @@
  */
 @property(nonatomic, readonly, nonnull) FlutterTextInputPlugin* textInputPlugin;
 
+@property(nonatomic) int64_t id;
+
 /**
  * Initializes this FlutterViewController with the specified `FlutterEngine`.
  *

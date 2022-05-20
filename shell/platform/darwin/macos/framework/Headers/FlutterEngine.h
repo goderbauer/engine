@@ -72,6 +72,8 @@ FLUTTER_DARWIN_EXPORT
  */
 @property(nonatomic, nonnull, readonly) id<FlutterBinaryMessenger> binaryMessenger;
 
+- (void) addViewController:(nonnull FlutterViewController*)controller;
+
 /**
  * Shuts the Flutter engine if it is running. The FlutterEngine instance must always be shutdown
  * before it may be collected. Not shutting down the FlutterEngine instance before releasing it will
@@ -79,7 +81,7 @@ FLUTTER_DARWIN_EXPORT
  */
 - (void)shutDownEngine;
 
-- (nonnull id) createFlutterView;
+// - (nonnull id) createFlutterView;
 
 @end
 

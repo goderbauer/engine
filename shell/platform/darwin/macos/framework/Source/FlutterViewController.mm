@@ -276,6 +276,9 @@ void OnKeyboardLayoutChanged(CFNotificationCenterRef center,
  * Performs initialization that's common between the different init paths.
  */
 static void CommonInit(FlutterViewController* controller) {
+  static int64_t next_id = 0;
+  controller.id = next_id++;
+
   if (!controller->_engine) {
     controller->_engine = [[FlutterEngine alloc] initWithName:@"io.flutter"
                                                       project:controller->_project
@@ -290,6 +293,7 @@ static void CommonInit(FlutterViewController* controller) {
   CFNotificationCenterAddObserver(cfCenter, (__bridge void*)weakSelf, OnKeyboardLayoutChanged,
                                   kTISNotifySelectedKeyboardInputSourceChanged, NULL,
                                   CFNotificationSuspensionBehaviorDeliverImmediately);
+  [controller->_engine addViewController: controller];
 }
 
 - (instancetype)initWithCoder:(NSCoder*)coder {
@@ -332,7 +336,8 @@ static void CommonInit(FlutterViewController* controller) {
     }
     _engine = engine;
     CommonInit(self);
-    [engine setViewController:self];
+    // [_engine setViewController: self];
+    // [_engine addViewController: self];
   }
 
   return self;
@@ -341,7 +346,7 @@ static void CommonInit(FlutterViewController* controller) {
 - (void)loadView {
   FlutterView* flutterView;
   if ([FlutterRenderingBackend renderUsingMetal]) {
-    FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([_engine.renderers objectForKey:@0]);
+    FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([_engine.renderers objectForKey:@(self.id)]);
     id<MTLDevice> device = metalRenderer.device;
     id<MTLCommandQueue> commandQueue = metalRenderer.commandQueue;
     if (!device || !commandQueue) {
@@ -351,9 +356,10 @@ static void CommonInit(FlutterViewController* controller) {
     flutterView = [[FlutterView alloc] initWithMTLDevice:device
                                             commandQueue:commandQueue
                                          reshapeListener:self];
+    [metalRenderer setFlutterView:flutterView];
   } else {
     FlutterOpenGLRenderer* openGLRenderer =
-        reinterpret_cast<FlutterOpenGLRenderer*>([_engine.renderers objectForKey:@0]);
+        reinterpret_cast<FlutterOpenGLRenderer*>([_engine.renderers objectForKey:@(self.id)]);
     NSOpenGLContext* mainContext = openGLRenderer.openGLContext;
     if (!mainContext) {
       NSLog(@"Unable to create FlutterView; no GL context available.");
@@ -410,7 +416,6 @@ static void CommonInit(FlutterViewController* controller) {
 - (BOOL)launchEngine {
   [self initializeKeyboard];
 
-  _engine.viewController = self;
   if (![_engine runWithEntrypoint:nil]) {
     return NO;
   }
@@ -658,7 +663,7 @@ static void CommonInit(FlutterViewController* controller) {
  * Responds to view reshape by notifying the engine of the change in dimensions.
  */
 - (void)viewDidReshape:(NSView*)view {
-  [_engine updateWindowMetrics: self.flutterView id: 0];
+  [_engine updateWindowMetrics: self.flutterView id: self.id];
 }
 
 #pragma mark - FlutterPluginRegistry
