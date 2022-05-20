@@ -1874,9 +1874,11 @@ FlutterEngineResult FlutterEngineInitialize(size_t version,
                                                 engine_out);
 
 FLUTTER_EXPORT
-FlutterEngineResult FlutterEngineAddRenderSurface(FLUTTER_API_SYMBOL(FlutterEngine)
-                                                  engine,
-                                            const FlutterRendererConfig* config, void* user_data, int64_t view_id);
+FlutterEngineResult FlutterEngineAddRenderSurface(
+    FLUTTER_API_SYMBOL(FlutterEngine) engine,
+    const FlutterRendererConfig* config,
+    void* user_data,
+    int64_t view_id);
 
 //------------------------------------------------------------------------------
 /// @brief      Stops running the Flutter engine instance. After this call, the
@@ -2460,10 +2462,11 @@ typedef FlutterEngineResult (*FlutterEngineInitializeFnPtr)(
     const FlutterProjectArgs* args,
     void* user_data,
     FLUTTER_API_SYMBOL(FlutterEngine) * engine_out);
-typedef FlutterEngineResult (*FlutterEngineAddRenderSurfaceFnPtr) (
-      FLUTTER_API_SYMBOL(FlutterEngine) engine,
+typedef FlutterEngineResult (*FlutterEngineAddRenderSurfaceFnPtr)(
+    FLUTTER_API_SYMBOL(FlutterEngine) engine,
     const FlutterRendererConfig* config,
-    void* user_data, int64_t view_id);
+    void* user_data,
+    int64_t view_id);
 typedef FlutterEngineResult (*FlutterEngineDeinitializeFnPtr)(
     FLUTTER_API_SYMBOL(FlutterEngine) engine);
 typedef FlutterEngineResult (*FlutterEngineRunInitializedFnPtr)(

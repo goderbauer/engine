@@ -70,7 +70,8 @@ bool EmbedderSurfaceMetal::PresentDrawable(GrMTLHandle drawable) const {
   return false;
 }
 
-GPUMTLTextureInfo EmbedderSurfaceMetal::GetMTLTexture(const SkISize& frame_info, int64_t view_id) const {
+GPUMTLTextureInfo EmbedderSurfaceMetal::GetMTLTexture(const SkISize& frame_info,
+                                                      int64_t view_id) const {
   return metal_dispatch_table_.get_texture(frame_info, view_id);
 }
 

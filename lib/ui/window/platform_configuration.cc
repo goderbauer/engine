@@ -336,8 +336,10 @@ void PlatformConfiguration::DispatchSemanticsAction(int32_t id,
        args_handle}));
 }
 
-void PlatformConfiguration::DispatchPointerDataPacket(const PointerDataPacket& packet) {
-  std::shared_ptr<tonic::DartState> dart_state = dispatch_pointer_data_paket_.dart_state().lock();
+void PlatformConfiguration::DispatchPointerDataPacket(
+    const PointerDataPacket& packet) {
+  std::shared_ptr<tonic::DartState> dart_state =
+      dispatch_pointer_data_paket_.dart_state().lock();
   if (!dart_state) {
     return;
   }
@@ -349,8 +351,8 @@ void PlatformConfiguration::DispatchPointerDataPacket(const PointerDataPacket& p
   if (Dart_IsError(data_handle)) {
     return;
   }
-  tonic::CheckAndHandleError(tonic::DartInvoke(
-      dispatch_pointer_data_paket_.Get(), {data_handle}));
+  tonic::CheckAndHandleError(
+      tonic::DartInvoke(dispatch_pointer_data_paket_.Get(), {data_handle}));
 }
 
 void PlatformConfiguration::BeginFrame(fml::TimePoint frameTime,

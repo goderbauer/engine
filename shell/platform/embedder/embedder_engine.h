@@ -13,8 +13,8 @@
 #include "flutter/shell/common/thread_host.h"
 #include "flutter/shell/platform/embedder/embedder.h"
 #include "flutter/shell/platform/embedder/embedder_external_texture_resolver.h"
-#include "flutter/shell/platform/embedder/embedder_thread_host.h"
 #include "flutter/shell/platform/embedder/embedder_surface.h"
+#include "flutter/shell/platform/embedder/embedder_thread_host.h"
 namespace flutter {
 
 struct ShellArgs;

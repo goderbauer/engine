@@ -9,17 +9,13 @@
 
 static NSString* const kChannelName = @"flutter/window";
 
-
-
-
-
-@interface DemoView : NSView    // interface of DemoView class
-{                               // (subclass of NSView class)
+@interface DemoView : NSView  // interface of DemoView class
+{                             // (subclass of NSView class)
 }
 // - (void)drawRect:(NSRect)rect;  // instance method interface
 @end
 
-@implementation DemoView        // implementation of DemoView class
+@implementation DemoView  // implementation of DemoView class
 
 // #define X(t) (sin(t)+1) * width * 0.5     // macro for X(t)
 // #define Y(t) (cos(t)+1) * height * 0.5    // macro for Y(t)
@@ -54,13 +50,8 @@ static NSString* const kChannelName = @"flutter/window";
 // } // end of drawRect: override method
 @end  // end of DemoView implementation
 
-
-
-
-
-
 @interface FlutterWindowPlugin ()
-- (instancetype)initWithChannel:(FlutterMethodChannel*)channel engine: (FlutterEngine*)engine;
+- (instancetype)initWithChannel:(FlutterMethodChannel*)channel engine:(FlutterEngine*)engine;
 @end
 
 @implementation FlutterWindowPlugin {
@@ -70,7 +61,7 @@ static NSString* const kChannelName = @"flutter/window";
 
 #pragma mark - Private Methods
 
-- (instancetype)initWithChannel:(FlutterMethodChannel*)channel engine: (FlutterEngine*)engine{
+- (instancetype)initWithChannel:(FlutterMethodChannel*)channel engine:(FlutterEngine*)engine {
   self = [super init];
   if (self) {
     _channel = channel;
@@ -83,38 +74,40 @@ static NSString* const kChannelName = @"flutter/window";
   NSLog(@">>> method %@", call.method);
   if ([call.method isEqualToString:@"new"]) {
     // dispatch_async(dispatch_get_main_queue(), ^{
-      NSRect    graphicsRect = NSMakeRect(100.0, 350.0, 844.0, 626.0);
-      NSWindow * myWindow = [ [NSWindow alloc]
-                 initWithContentRect: graphicsRect
-                           styleMask:NSTitledWindowMask
-                                    |NSClosableWindowMask
-                                    |NSMiniaturizableWindowMask
-                                    |NSWindowStyleMaskResizable
-                             backing:NSBackingStoreBuffered
-                               defer:NO ];
-          [myWindow setTitle:@"Test Test"];
+    NSRect graphicsRect = NSMakeRect(100.0, 350.0, 844.0, 626.0);
+    NSWindow* myWindow = [[NSWindow alloc]
+        initWithContentRect:graphicsRect
+                  styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask |
+                            NSWindowStyleMaskResizable
+                    backing:NSBackingStoreBuffered
+                      defer:NO];
+    [myWindow setTitle:@"Test Test"];
 
-          // NSView   *myView = [[DemoView alloc] initWithFrame:graphicsRect];
-          // FlutterView   *myView = [_engine createFlutterView];
-          // [myWindow setContentView:myView ];    // set window's view
-          FlutterViewController* controller = [[FlutterViewController alloc] initWithEngine:_engine nibName:nil bundle:nil];
-          [myWindow setContentViewController:controller];
-          [myWindow setFrame: graphicsRect display:YES];
+    // NSView   *myView = [[DemoView alloc] initWithFrame:graphicsRect];
+    // FlutterView   *myView = [_engine createFlutterView];
+    // [myWindow setContentView:myView ];    // set window's view
+    FlutterViewController* controller = [[FlutterViewController alloc] initWithEngine:_engine
+                                                                              nibName:nil
+                                                                               bundle:nil];
+    [myWindow setContentViewController:controller];
+    [myWindow setFrame:graphicsRect display:YES];
 
-      // [myWindow setDelegate:*myView ];       // set window's delegate
-      [myWindow makeKeyAndOrderFront: nil]; // display window
-      [_engine updateWindowMetrics:controller.flutterView id: controller.id];
-      NSLog(@"New view ID: %@", @(controller.id));
+    // [myWindow setDelegate:*myView ];       // set window's delegate
+    [myWindow makeKeyAndOrderFront:nil];  // display window
+    [_engine updateWindowMetrics:controller.flutterView id:controller.id];
+    NSLog(@"New view ID: %@", @(controller.id));
     // });
   }
 }
 
 #pragma mark - Public Class Methods
 
-+ (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar engine:(nonnull FlutterEngine*)engine {
++ (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar
+                       engine:(nonnull FlutterEngine*)engine {
   FlutterMethodChannel* channel = [FlutterMethodChannel methodChannelWithName:kChannelName
                                                               binaryMessenger:registrar.messenger];
-  FlutterWindowPlugin* instance = [[FlutterWindowPlugin alloc] initWithChannel:channel engine: engine];
+  FlutterWindowPlugin* instance = [[FlutterWindowPlugin alloc] initWithChannel:channel
+                                                                        engine:engine];
   [registrar addMethodCallDelegate:instance channel:channel];
 }
 
@@ -122,6 +115,4 @@ static NSString* const kChannelName = @"flutter/window";
   NSLog(@"ERROR CALL TO registerWithRegistrar");
 }
 
-
 @end
-

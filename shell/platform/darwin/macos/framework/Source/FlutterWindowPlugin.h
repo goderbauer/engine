@@ -5,13 +5,13 @@
 #import <AppKit/AppKit.h>
 
 #import "flutter/shell/platform/darwin/common/framework/Headers/FlutterBinaryMessenger.h"
+#import "flutter/shell/platform/darwin/macos/framework/Headers/FlutterEngine.h"
 #import "flutter/shell/platform/darwin/macos/framework/Headers/FlutterPluginMacOS.h"
 #import "flutter/shell/platform/darwin/macos/framework/Headers/FlutterViewController.h"
-#import "flutter/shell/platform/darwin/macos/framework/Headers/FlutterEngine.h"
-
 
 @interface FlutterWindowPlugin : NSObject <FlutterPlugin>
 
-+ (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar engine:(nonnull FlutterEngine*)engine;
++ (void)registerWithRegistrar:(nonnull id<FlutterPluginRegistrar>)registrar
+                       engine:(nonnull FlutterEngine*)engine;
 
 @end

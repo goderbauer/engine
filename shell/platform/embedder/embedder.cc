@@ -356,19 +356,21 @@ InferMetalPlatformViewCreationCallback(
   }
 
 #ifdef SHELL_ENABLE_METAL
-  std::function<bool(flutter::GPUMTLTextureInfo texture, int64_t view_id)> metal_present =
-      [ptr = config->metal.present_drawable_callback,
-       user_data](flutter::GPUMTLTextureInfo texture, int64_t view_id) {
-        FlutterMetalTexture embedder_texture;
-        embedder_texture.struct_size = sizeof(FlutterMetalTexture);
-        embedder_texture.texture = texture.texture;
-        embedder_texture.texture_id = texture.texture_id;
-        embedder_texture.view_id = view_id;
-        return ptr(user_data, &embedder_texture);
-      };
-  auto metal_get_texture =
-      [ptr = config->metal.get_next_drawable_callback,
-       user_data](const SkISize& frame_size, int64_t view_id) -> flutter::GPUMTLTextureInfo {
+  std::function<bool(flutter::GPUMTLTextureInfo texture, int64_t view_id)>
+      metal_present =
+          [ptr = config->metal.present_drawable_callback, user_data](
+              flutter::GPUMTLTextureInfo texture, int64_t view_id) {
+            FlutterMetalTexture embedder_texture;
+            embedder_texture.struct_size = sizeof(FlutterMetalTexture);
+            embedder_texture.texture = texture.texture;
+            embedder_texture.texture_id = texture.texture_id;
+            embedder_texture.view_id = view_id;
+            return ptr(user_data, &embedder_texture);
+          };
+  auto metal_get_texture = [ptr = config->metal.get_next_drawable_callback,
+                            user_data](
+                               const SkISize& frame_size,
+                               int64_t view_id) -> flutter::GPUMTLTextureInfo {
     FlutterFrameInfo frame_info = {};
     frame_info.struct_size = sizeof(FlutterFrameInfo);
     frame_info.size = {static_cast<uint32_t>(frame_size.width()),
@@ -1582,26 +1584,30 @@ FlutterEngineResult FlutterEngineRunInitialized(
 }
 
 FLUTTER_EXPORT
-FlutterEngineResult FlutterEngineAddRenderSurface(FLUTTER_API_SYMBOL(FlutterEngine)
-                                                  engine,
-                                            const FlutterRendererConfig* config, void* user_data, int64_t view_id) {
+FlutterEngineResult FlutterEngineAddRenderSurface(
+    FLUTTER_API_SYMBOL(FlutterEngine) engine,
+    const FlutterRendererConfig* config,
+    void* user_data,
+    int64_t view_id) {
   if (engine == nullptr) {
     return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
   }
 
-  std::function<bool(flutter::GPUMTLTextureInfo texture, int64_t view_id)> metal_present =
-      [ptr = config->metal.present_drawable_callback,
-       user_data](flutter::GPUMTLTextureInfo texture, int64_t view_id) {
-        FlutterMetalTexture embedder_texture;
-        embedder_texture.struct_size = sizeof(FlutterMetalTexture);
-        embedder_texture.texture = texture.texture;
-        embedder_texture.texture_id = texture.texture_id;
-        embedder_texture.view_id = view_id;
-        return ptr(user_data, &embedder_texture);
-      };
-  auto metal_get_texture =
-      [ptr = config->metal.get_next_drawable_callback,
-       user_data](const SkISize& frame_size, int64_t view_id) -> flutter::GPUMTLTextureInfo {
+  std::function<bool(flutter::GPUMTLTextureInfo texture, int64_t view_id)>
+      metal_present =
+          [ptr = config->metal.present_drawable_callback, user_data](
+              flutter::GPUMTLTextureInfo texture, int64_t view_id) {
+            FlutterMetalTexture embedder_texture;
+            embedder_texture.struct_size = sizeof(FlutterMetalTexture);
+            embedder_texture.texture = texture.texture;
+            embedder_texture.texture_id = texture.texture_id;
+            embedder_texture.view_id = view_id;
+            return ptr(user_data, &embedder_texture);
+          };
+  auto metal_get_texture = [ptr = config->metal.get_next_drawable_callback,
+                            user_data](
+                               const SkISize& frame_size,
+                               int64_t view_id) -> flutter::GPUMTLTextureInfo {
     FlutterFrameInfo frame_info = {};
     frame_info.struct_size = sizeof(FlutterFrameInfo);
     frame_info.size = {static_cast<uint32_t>(frame_size.width()),
@@ -1620,16 +1626,15 @@ FlutterEngineResult FlutterEngineAddRenderSurface(FLUTTER_API_SYMBOL(FlutterEngi
       .get_texture = metal_get_texture,
   };
 
-    auto embedder_engine = reinterpret_cast<flutter::EmbedderEngine*>(engine);
-    embedder_engine->surface =
-          std::make_unique<flutter::EmbedderSurfaceMetal>(
-          const_cast<flutter::GPUMTLDeviceHandle>(config->metal.device),
-          const_cast<flutter::GPUMTLCommandQueueHandle>(
-              config->metal.present_command_queue),
-          metal_dispatch_table, nullptr);
+  auto embedder_engine = reinterpret_cast<flutter::EmbedderEngine*>(engine);
+  embedder_engine->surface = std::make_unique<flutter::EmbedderSurfaceMetal>(
+      const_cast<flutter::GPUMTLDeviceHandle>(config->metal.device),
+      const_cast<flutter::GPUMTLCommandQueueHandle>(
+          config->metal.present_command_queue),
+      metal_dispatch_table, nullptr);
 
-
-  embedder_engine->GetShell().AddSurface(embedder_engine->surface->CreateGPUSurface(view_id), view_id);
+  embedder_engine->GetShell().AddSurface(
+      embedder_engine->surface->CreateGPUSurface(view_id), view_id);
 
   return kSuccess;
 }

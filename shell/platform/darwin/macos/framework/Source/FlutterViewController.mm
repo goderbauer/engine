@@ -293,7 +293,7 @@ static void CommonInit(FlutterViewController* controller) {
   CFNotificationCenterAddObserver(cfCenter, (__bridge void*)weakSelf, OnKeyboardLayoutChanged,
                                   kTISNotifySelectedKeyboardInputSourceChanged, NULL,
                                   CFNotificationSuspensionBehaviorDeliverImmediately);
-  [controller->_engine addViewController: controller];
+  [controller->_engine addViewController:controller];
 }
 
 - (instancetype)initWithCoder:(NSCoder*)coder {
@@ -346,7 +346,8 @@ static void CommonInit(FlutterViewController* controller) {
 - (void)loadView {
   FlutterView* flutterView;
   if ([FlutterRenderingBackend renderUsingMetal]) {
-    FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([_engine.renderers objectForKey:@(self.id)]);
+    FlutterMetalRenderer* metalRenderer =
+        reinterpret_cast<FlutterMetalRenderer*>([_engine.renderers objectForKey:@(self.id)]);
     id<MTLDevice> device = metalRenderer.device;
     id<MTLCommandQueue> commandQueue = metalRenderer.commandQueue;
     if (!device || !commandQueue) {
@@ -663,7 +664,7 @@ static void CommonInit(FlutterViewController* controller) {
  * Responds to view reshape by notifying the engine of the change in dimensions.
  */
 - (void)viewDidReshape:(NSView*)view {
-  [_engine updateWindowMetrics: self.flutterView id: self.id];
+  [_engine updateWindowMetrics:self.flutterView id:self.id];
 }
 
 #pragma mark - FlutterPluginRegistry

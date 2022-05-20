@@ -21,19 +21,16 @@
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterPlatformViewController.h"
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterRenderingBackend.h"
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterViewController_Internal.h"
-#include "flutter/shell/platform/embedder/embedder.h"
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterWindowPlugin.h"
+#include "flutter/shell/platform/embedder/embedder.h"
 
-
-@interface DummyFlutterViewReshapeListener :NSObject<FlutterViewReshapeListener>
+@interface DummyFlutterViewReshapeListener : NSObject <FlutterViewReshapeListener>
 @end
 
 @implementation DummyFlutterViewReshapeListener
 - (void)viewDidReshape:(nonnull NSView*)view {
-
 }
 @end
-
 
 /**
  * Constructs and returns a FlutterLocale struct corresponding to |locale|, which must outlive
@@ -367,8 +364,8 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
     [engine engineCallbackOnPreEngineRestart];
   };
 
-  FlutterRendererConfig rendererConfig = [[_renderers  objectForKey:@0] createRendererConfig];
-    NSLog(@"running");
+  FlutterRendererConfig rendererConfig = [[_renderers objectForKey:@0] createRendererConfig];
+  NSLog(@"running");
   FlutterEngineResult result = _embedderAPI.Initialize(
       FLUTTER_ENGINE_VERSION, &rendererConfig, &flutterArguments, (__bridge void*)(self), &_engine);
   if (result != kSuccess) {
@@ -384,7 +381,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
   [self sendUserLocales];
   if (_viewController.viewLoaded) {
-    [self updateWindowMetrics: _viewController.flutterView id: 0];
+    [self updateWindowMetrics:_viewController.flutterView id:0];
   }
   [self updateDisplayConfig];
   // Send the initial user settings such as brightness and text scale factor
@@ -430,7 +427,8 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 //     }
 //     FlutterView* flutterView = [[FlutterView alloc] initWithMTLDevice:device
 //                                             commandQueue:commandQueue
-//                                          reshapeListener:[DummyFlutterViewReshapeListener alloc]];
+//                                          reshapeListener:[DummyFlutterViewReshapeListener
+//                                          alloc]];
 
 //     // NSLog(@"created view: %@", flutterView);
 //     [renderer setFlutterView:flutterView];
@@ -457,31 +455,24 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
     renderer = [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self];
   }
   // if (controller.id == 0) {
-    [_renderers setObject: renderer forKey: @(controller.id)];
+  [_renderers setObject:renderer forKey:@(controller.id)];
   // }
 
   if (self.running) {
     NSLog(@"adding surface %@", @(controller.id));
     FlutterRendererConfig config = [renderer createRendererConfig];
 
-    _embedderAPI.AddRenderSurface(
-      _engine,
-      &config,
-      (__bridge void*)(self),
-      controller.id
-    );
+    _embedderAPI.AddRenderSurface(_engine, &config, (__bridge void*)(self), controller.id);
   }
 
+  // if (_semanticsEnabled && _bridge) {
+  //   _bridge->UpdateDelegate(
+  //       std::make_unique<flutter::AccessibilityBridgeMacDelegate>(self, _viewController));
+  // }
 
-
-    // if (_semanticsEnabled && _bridge) {
-    //   _bridge->UpdateDelegate(
-    //       std::make_unique<flutter::AccessibilityBridgeMacDelegate>(self, _viewController));
-    // }
-
-    // if (!controller && !_allowHeadlessExecution) {
-    //   [self shutDownEngine];
-    // }
+  // if (!controller && !_allowHeadlessExecution) {
+  //   [self shutDownEngine];
+  // }
 }
 
 - (FlutterCompositor*)createFlutterCompositor {
@@ -495,20 +486,22 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   __weak FlutterEngine* weakSelf = self;
 
   if ([FlutterRenderingBackend renderUsingMetal]) {
-    FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([_renderers objectForKey: @0]);
+    FlutterMetalRenderer* metalRenderer =
+        reinterpret_cast<FlutterMetalRenderer*>([_renderers objectForKey:@0]);
     _macOSCompositor = std::make_unique<flutter::FlutterMetalCompositor>(
         _viewController, _platformViewController, metalRenderer.device);
     _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
       if (has_flutter_content) {
         FlutterMetalRenderer* metalRenderer =
-            reinterpret_cast<FlutterMetalRenderer*>([weakSelf.renderers objectForKey: @0]);
+            reinterpret_cast<FlutterMetalRenderer*>([weakSelf.renderers objectForKey:@0]);
         return [metalRenderer present:0 /*=textureID*/] == YES;
       } else {
         return true;
       }
     });
   } else {
-    FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>([_renderers objectForKey: @0]);
+    FlutterOpenGLRenderer* openGLRenderer =
+        reinterpret_cast<FlutterOpenGLRenderer*>([_renderers objectForKey:@0]);
     [openGLRenderer.openGLContext makeCurrentContext];
     _macOSCompositor = std::make_unique<flutter::FlutterGLCompositor>(_viewController,
                                                                       openGLRenderer.openGLContext);
@@ -516,7 +509,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
     _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
       if (has_flutter_content) {
         FlutterOpenGLRenderer* openGLRenderer =
-            reinterpret_cast<FlutterOpenGLRenderer*>([weakSelf.renderers objectForKey: @0]);
+            reinterpret_cast<FlutterOpenGLRenderer*>([weakSelf.renderers objectForKey:@0]);
         return [openGLRenderer glPresent] == YES;
       } else {
         return true;
@@ -802,7 +795,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   __weak FlutterEngine* weakSelf = self;
   [FlutterMouseCursorPlugin registerWithRegistrar:[self registrarForPlugin:@"mousecursor"]];
   [FlutterMenuPlugin registerWithRegistrar:[self registrarForPlugin:@"menu"]];
-  [FlutterWindowPlugin registerWithRegistrar:[self registrarForPlugin:@"window"] engine: weakSelf];
+  [FlutterWindowPlugin registerWithRegistrar:[self registrarForPlugin:@"window"] engine:weakSelf];
   _settingsChannel =
       [FlutterBasicMessageChannel messageChannelWithName:@"flutter/settings"
                                          binaryMessenger:self.binaryMessenger
@@ -971,7 +964,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 
 - (int64_t)registerTexture:(id<FlutterTexture>)texture {
   NSLog(@"1111 registerTexture");
-  return [[_renderers objectForKey: @0] registerTexture:texture];
+  return [[_renderers objectForKey:@0] registerTexture:texture];
 }
 
 - (BOOL)registerTextureWithID:(int64_t)textureId {
@@ -979,8 +972,8 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 }
 
 - (void)textureFrameAvailable:(int64_t)textureID {
-    NSLog(@"1111 textureFrameAvailable");
-  [[_renderers objectForKey: @0] textureFrameAvailable:textureID];
+  NSLog(@"1111 textureFrameAvailable");
+  [[_renderers objectForKey:@0] textureFrameAvailable:textureID];
 }
 
 - (BOOL)markTextureFrameAvailable:(int64_t)textureID {
@@ -988,8 +981,8 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 }
 
 - (void)unregisterTexture:(int64_t)textureID {
-      NSLog(@"1111 unregisterTexture");
-  [[_renderers objectForKey: @0] unregisterTexture:textureID];
+  NSLog(@"1111 unregisterTexture");
+  [[_renderers objectForKey:@0] unregisterTexture:textureID];
 }
 
 - (BOOL)unregisterTextureWithID:(int64_t)textureID {

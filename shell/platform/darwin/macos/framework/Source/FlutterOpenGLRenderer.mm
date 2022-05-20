@@ -10,33 +10,36 @@
 #pragma mark - Static methods for openGL callbacks that require the engine.
 
 static bool OnMakeCurrent(FlutterEngine* engine) {
-  // FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer);
-  // return [openGLRenderer makeCurrent];
+  // FlutterOpenGLRenderer* openGLRenderer =
+  // reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer); return [openGLRenderer makeCurrent];
   return true;
 }
 
 static bool OnClearCurrent(FlutterEngine* engine) {
-  // FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer);
-  // return [openGLRenderer clearCurrent];
-    return true;
+  // FlutterOpenGLRenderer* openGLRenderer =
+  // reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer); return [openGLRenderer
+  // clearCurrent];
+  return true;
 }
 
 static bool OnPresent(FlutterEngine* engine) {
-  // FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer);
-  // return [openGLRenderer glPresent];
-    return true;
+  // FlutterOpenGLRenderer* openGLRenderer =
+  // reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer); return [openGLRenderer glPresent];
+  return true;
 }
 
 static uint32_t OnFBO(FlutterEngine* engine, const FlutterFrameInfo* info) {
-  // FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer);
-  // return [openGLRenderer fboForFrameInfo:info];
-    return true;
+  // FlutterOpenGLRenderer* openGLRenderer =
+  // reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer); return [openGLRenderer
+  // fboForFrameInfo:info];
+  return true;
 }
 
 static bool OnMakeResourceCurrent(FlutterEngine* engine) {
-  // FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer);
-  // return [openGLRenderer makeResourceCurrent];
-    return true;
+  // FlutterOpenGLRenderer* openGLRenderer =
+  // reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer); return [openGLRenderer
+  // makeResourceCurrent];
+  return true;
 }
 
 static bool OnAcquireExternalTexture(FlutterEngine* engine,
@@ -44,10 +47,11 @@ static bool OnAcquireExternalTexture(FlutterEngine* engine,
                                      size_t width,
                                      size_t height,
                                      FlutterOpenGLTexture* openGlTexture) {
-  // FlutterOpenGLRenderer* openGLRenderer = reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer);
-  // return [openGLRenderer populateTextureWithIdentifier:textureIdentifier
+  // FlutterOpenGLRenderer* openGLRenderer =
+  // reinterpret_cast<FlutterOpenGLRenderer*>(engine.renderer); return [openGLRenderer
+  // populateTextureWithIdentifier:textureIdentifier
   //                                        openGLTexture:openGlTexture];
-    return true;
+  return true;
 }
 
 #pragma mark - FlutterOpenGLRenderer implementation.

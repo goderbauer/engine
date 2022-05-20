@@ -60,7 +60,8 @@ class SK_API_AVAILABLE_CA_METAL_LAYER GPUSurfaceMetalSkia : public Surface {
       const SkISize& frame_info);
 
   std::unique_ptr<SurfaceFrame> AcquireFrameFromMTLTexture(
-      const SkISize& frame_info, int64_t view_id);
+      const SkISize& frame_info,
+      int64_t view_id);
 
   void PrecompileKnownSkSLsIfNecessary();
 

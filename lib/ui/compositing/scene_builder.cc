@@ -346,9 +346,7 @@ void SceneBuilder::build(Dart_Handle scene_handle,
   Scene::create(
       scene_handle, std::move(layer_stack_[0]), rasterizer_tracing_threshold_,
       checkerboard_raster_cache_images_, checkerboard_offscreen_layers_,
-                   device_pixel_ratio,
-                   physical_width,
-                   physical_height);
+      device_pixel_ratio, physical_width, physical_height);
   layer_stack_.clear();
   ClearDartWrapper();  // may delete this object.
 }

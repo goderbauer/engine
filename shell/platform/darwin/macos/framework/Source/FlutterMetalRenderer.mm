@@ -15,12 +15,14 @@
 static FlutterMetalTexture OnGetNextDrawable(FlutterEngine* engine,
                                              const FlutterFrameInfo* frameInfo) {
   CGSize size = CGSizeMake(frameInfo->size.width, frameInfo->size.height);
-  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey: @(frameInfo->view_id)]);
+  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>(
+      [engine.renderers objectForKey:@(frameInfo->view_id)]);
   return [metalRenderer createTextureForSize:size];
 }
 
 static bool OnPresentDrawable(FlutterEngine* engine, const FlutterMetalTexture* texture) {
-  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey: @(texture->view_id)]);
+  FlutterMetalRenderer* metalRenderer =
+      reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey:@(texture->view_id)]);
   return [metalRenderer present:texture->texture_id];
 }
 
@@ -29,7 +31,8 @@ static bool OnAcquireExternalTexture(FlutterEngine* engine,
                                      size_t width,
                                      size_t height,
                                      FlutterMetalExternalTexture* metalTexture) {
-  FlutterMetalRenderer* metalRenderer = reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey: @0]);
+  FlutterMetalRenderer* metalRenderer =
+      reinterpret_cast<FlutterMetalRenderer*>([engine.renderers objectForKey:@0]);
   return [metalRenderer populateTextureWithIdentifier:textureIdentifier metalTexture:metalTexture];
 }
 
@@ -38,7 +41,7 @@ static bool OnAcquireExternalTexture(FlutterEngine* engine,
 @implementation FlutterMetalRenderer {
   __weak FlutterEngine* _engine;
 
-  FlutterView* _flutterView; // needs to support multipe views
+  FlutterView* _flutterView;  // needs to support multipe views
 
   FlutterDarwinContextMetal* _darwinMetalContext;
 }
@@ -76,9 +79,12 @@ static bool OnAcquireExternalTexture(FlutterEngine* engine,
       .metal.struct_size = sizeof(FlutterMetalRendererConfig),
       .metal.device = (__bridge FlutterMetalDeviceHandle)_device,
       .metal.present_command_queue = (__bridge FlutterMetalCommandQueueHandle)_commandQueue,
-      .metal.get_next_drawable_callback = reinterpret_cast<FlutterMetalTextureCallback>(OnGetNextDrawable),
-      .metal.present_drawable_callback = reinterpret_cast<FlutterMetalPresentCallback>(OnPresentDrawable),
-      .metal.external_texture_frame_callback = reinterpret_cast<FlutterMetalTextureFrameCallback>(OnAcquireExternalTexture),
+      .metal.get_next_drawable_callback =
+          reinterpret_cast<FlutterMetalTextureCallback>(OnGetNextDrawable),
+      .metal.present_drawable_callback =
+          reinterpret_cast<FlutterMetalPresentCallback>(OnPresentDrawable),
+      .metal.external_texture_frame_callback =
+          reinterpret_cast<FlutterMetalTextureFrameCallback>(OnAcquireExternalTexture),
   };
   return config;
 }

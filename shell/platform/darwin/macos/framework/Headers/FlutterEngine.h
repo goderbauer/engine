@@ -72,7 +72,7 @@ FLUTTER_DARWIN_EXPORT
  */
 @property(nonatomic, nonnull, readonly) id<FlutterBinaryMessenger> binaryMessenger;
 
-- (void) addViewController:(nonnull FlutterViewController*)controller;
+- (void)addViewController:(nonnull FlutterViewController*)controller;
 
 /**
  * Shuts the Flutter engine if it is running. The FlutterEngine instance must always be shutdown

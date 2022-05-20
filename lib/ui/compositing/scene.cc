@@ -37,7 +37,8 @@ void Scene::create(Dart_Handle scene_handle,
                    double physical_height) {
   auto scene = fml::MakeRefCounted<Scene>(
       std::move(rootLayer), rasterizerTracingThreshold,
-      checkerboardRasterCacheImages, checkerboardOffscreenLayers, device_pixel_ratio, physical_width, physical_height);
+      checkerboardRasterCacheImages, checkerboardOffscreenLayers,
+      device_pixel_ratio, physical_width, physical_height);
   scene->AssociateWithDartWrapper(scene_handle);
 }
 
@@ -48,15 +49,13 @@ Scene::Scene(std::shared_ptr<flutter::Layer> rootLayer,
              double device_pixel_ratio,
              double physical_width,
              double physical_height) {
-
   auto viewport_metrics = UIDartState::Current()
                               ->platform_configuration()
                               ->get_window(0)
                               ->viewport_metrics();
 
   layer_tree_ = std::make_unique<LayerTree>(
-      SkISize::Make(physical_width,
-                    physical_height),
+      SkISize::Make(physical_width, physical_height),
       static_cast<float>(device_pixel_ratio));
   layer_tree_->set_root_layer(std::move(rootLayer));
   layer_tree_->set_rasterizer_tracing_threshold(rasterizerTracingThreshold);

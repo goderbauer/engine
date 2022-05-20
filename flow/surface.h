@@ -41,6 +41,7 @@ class Surface {
 
  protected:
   const int64_t id_;
+
  private:
   FML_DISALLOW_COPY_AND_ASSIGN(Surface);
 };

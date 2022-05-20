@@ -266,8 +266,7 @@ class Shell final : public PlatformView::Delegate,
   ///
   fml::WeakPtr<PlatformView> GetPlatformView(int64_t view_id);
 
-  void AddSurface(std::unique_ptr<Surface> surface,
-                                int64_t view_id);
+  void AddSurface(std::unique_ptr<Surface> surface, int64_t view_id);
 
   void AddPlatformView(std::unique_ptr<PlatformView> platform_view);
 

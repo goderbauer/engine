@@ -752,9 +752,7 @@ DartVM* Shell::GetDartVM() {
   return &vm_;
 }
 
-void Shell::AddSurface(std::unique_ptr<Surface> surface,
-                                  int64_t view_id) {
-
+void Shell::AddSurface(std::unique_ptr<Surface> surface, int64_t view_id) {
   auto raster_task =
       fml::MakeCopyable([&waiting_for_first_frame = waiting_for_first_frame_,
                          rasterizer = rasterizer_->GetWeakPtr(),  //
@@ -768,7 +766,8 @@ void Shell::AddSurface(std::unique_ptr<Surface> surface,
 
         waiting_for_first_frame.store(true);
       });
-      fml::TaskRunner::RunNowOrPostTask(task_runners_.GetRasterTaskRunner(), raster_task);
+  fml::TaskRunner::RunNowOrPostTask(task_runners_.GetRasterTaskRunner(),
+                                    raster_task);
 }
 
 // |PlatformView::Delegate|
