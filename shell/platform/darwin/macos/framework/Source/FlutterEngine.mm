@@ -365,7 +365,6 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   };
 
   FlutterRendererConfig rendererConfig = [[_renderers objectForKey:@0] createRendererConfig];
-  NSLog(@"running");
   FlutterEngineResult result = _embedderAPI.Initialize(
       FLUTTER_ENGINE_VERSION, &rendererConfig, &flutterArguments, (__bridge void*)(self), &_engine);
   if (result != kSuccess) {
@@ -447,21 +446,18 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 // }
 
 - (void)addViewController:(FlutterViewController*)controller {
-  NSLog(@"adding");
   id<FlutterRenderer> renderer;
   if ([FlutterRenderingBackend renderUsingMetal]) {
     renderer = [[FlutterMetalRenderer alloc] initWithFlutterEngine:self];
   } else {
     renderer = [[FlutterOpenGLRenderer alloc] initWithFlutterEngine:self];
   }
-  // if (controller.id == 0) {
+  NSLog(@"adding %@", @(controller.id));
   [_renderers setObject:renderer forKey:@(controller.id)];
-  // }
 
   if (self.running) {
     NSLog(@"adding surface %@", @(controller.id));
     FlutterRendererConfig config = [renderer createRendererConfig];
-
     _embedderAPI.AddRenderSurface(_engine, &config, (__bridge void*)(self), controller.id);
   }
 
@@ -476,76 +472,77 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 }
 
 - (FlutterCompositor*)createFlutterCompositor {
-  // TODO(richardjcai): Add support for creating a FlutterCompositor
-  // with a nil _viewController for headless engines.
-  // https://github.com/flutter/flutter/issues/71606
-  if (!_viewController) {
-    return nil;
-  }
+  // // TODO(richardjcai): Add support for creating a FlutterCompositor
+  // // with a nil _viewController for headless engines.
+  // // https://github.com/flutter/flutter/issues/71606
+  // if (!_viewController) {
+  //   return nil;
+  // }
 
-  __weak FlutterEngine* weakSelf = self;
+  // __weak FlutterEngine* weakSelf = self;
 
-  if ([FlutterRenderingBackend renderUsingMetal]) {
-    FlutterMetalRenderer* metalRenderer =
-        reinterpret_cast<FlutterMetalRenderer*>([_renderers objectForKey:@0]);
-    _macOSCompositor = std::make_unique<flutter::FlutterMetalCompositor>(
-        _viewController, _platformViewController, metalRenderer.device);
-    _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
-      if (has_flutter_content) {
-        FlutterMetalRenderer* metalRenderer =
-            reinterpret_cast<FlutterMetalRenderer*>([weakSelf.renderers objectForKey:@0]);
-        return [metalRenderer present:0 /*=textureID*/] == YES;
-      } else {
-        return true;
-      }
-    });
-  } else {
-    FlutterOpenGLRenderer* openGLRenderer =
-        reinterpret_cast<FlutterOpenGLRenderer*>([_renderers objectForKey:@0]);
-    [openGLRenderer.openGLContext makeCurrentContext];
-    _macOSCompositor = std::make_unique<flutter::FlutterGLCompositor>(_viewController,
-                                                                      openGLRenderer.openGLContext);
+  // if ([FlutterRenderingBackend renderUsingMetal]) {
+  //   FlutterMetalRenderer* metalRenderer =
+  //       reinterpret_cast<FlutterMetalRenderer*>([_renderers objectForKey:@0]);
+  //   _macOSCompositor = std::make_unique<flutter::FlutterMetalCompositor>(
+  //       _viewController, _platformViewController, metalRenderer.device);
+  //   _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
+  //     if (has_flutter_content) {
+  //       FlutterMetalRenderer* metalRenderer =
+  //           reinterpret_cast<FlutterMetalRenderer*>([weakSelf.renderers objectForKey:@0]);
+  //       return [metalRenderer present:0 /*=textureID*/] == YES;
+  //     } else {
+  //       return true;
+  //     }
+  //   });
+  // } else {
+  //   FlutterOpenGLRenderer* openGLRenderer =
+  //       reinterpret_cast<FlutterOpenGLRenderer*>([_renderers objectForKey:@0]);
+  //   [openGLRenderer.openGLContext makeCurrentContext];
+  //   _macOSCompositor = std::make_unique<flutter::FlutterGLCompositor>(_viewController,
+  //                                                                     openGLRenderer.openGLContext);
 
-    _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
-      if (has_flutter_content) {
-        FlutterOpenGLRenderer* openGLRenderer =
-            reinterpret_cast<FlutterOpenGLRenderer*>([weakSelf.renderers objectForKey:@0]);
-        return [openGLRenderer glPresent] == YES;
-      } else {
-        return true;
-      }
-    });
-  }
+  //   _macOSCompositor->SetPresentCallback([weakSelf](bool has_flutter_content) {
+  //     if (has_flutter_content) {
+  //       FlutterOpenGLRenderer* openGLRenderer =
+  //           reinterpret_cast<FlutterOpenGLRenderer*>([weakSelf.renderers objectForKey:@0]);
+  //       return [openGLRenderer glPresent] == YES;
+  //     } else {
+  //       return true;
+  //     }
+  //   });
+  // }
 
-  _compositor = {};
-  _compositor.struct_size = sizeof(FlutterCompositor);
-  _compositor.user_data = _macOSCompositor.get();
+  // _compositor = {};
+  // _compositor.struct_size = sizeof(FlutterCompositor);
+  // _compositor.user_data = _macOSCompositor.get();
 
-  _compositor.create_backing_store_callback = [](const FlutterBackingStoreConfig* config,  //
-                                                 FlutterBackingStore* backing_store_out,   //
-                                                 void* user_data                           //
-                                              ) {
-    return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->CreateBackingStore(
-        config, backing_store_out);
-  };
+  // _compositor.create_backing_store_callback = [](const FlutterBackingStoreConfig* config,  //
+  //                                                FlutterBackingStore* backing_store_out,   //
+  //                                                void* user_data                           //
+  //                                             ) {
+  //   return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->CreateBackingStore(
+  //       config, backing_store_out);
+  // };
 
-  _compositor.collect_backing_store_callback = [](const FlutterBackingStore* backing_store,  //
-                                                  void* user_data                            //
-                                               ) {
-    return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->CollectBackingStore(
-        backing_store);
-  };
+  // _compositor.collect_backing_store_callback = [](const FlutterBackingStore* backing_store,  //
+  //                                                 void* user_data                            //
+  //                                              ) {
+  //   return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->CollectBackingStore(
+  //       backing_store);
+  // };
 
-  _compositor.present_layers_callback = [](const FlutterLayer** layers,  //
-                                           size_t layers_count,          //
-                                           void* user_data               //
-                                        ) {
-    return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->Present(layers, layers_count);
-  };
+  // _compositor.present_layers_callback = [](const FlutterLayer** layers,  //
+  //                                          size_t layers_count,          //
+  //                                          void* user_data               //
+  //                                       ) {
+  //   return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->Present(layers, layers_count);
+  // };
 
-  _compositor.avoid_backing_store_cache = true;
+  // _compositor.avoid_backing_store_cache = true;
 
-  return &_compositor;
+  // return &_compositor;
+  return nullptr;
 }
 
 - (id<FlutterBinaryMessenger>)binaryMessenger {

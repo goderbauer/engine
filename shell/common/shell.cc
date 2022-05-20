@@ -1186,8 +1186,9 @@ void Shell::OnAnimatorDraw(
 
   auto discard_callback = [this](flutter::LayerTree& tree) {
     std::scoped_lock<std::mutex> lock(resize_mutex_);
-    return !expected_frame_size_.isEmpty() &&
-           tree.frame_size() != expected_frame_size_;
+    return false;
+    // return !expected_frame_size_.isEmpty() &&
+    //        tree.frame_size() != expected_frame_size_;
   };
 
   task_runners_.GetRasterTaskRunner()->PostTask(fml::MakeCopyable(
