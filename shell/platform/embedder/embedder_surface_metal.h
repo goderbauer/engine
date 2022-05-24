@@ -31,6 +31,9 @@ class EmbedderSurfaceMetal final : public EmbedderSurface,
 
   ~EmbedderSurfaceMetal() override;
 
+  // |EmbedderSurface|
+  std::unique_ptr<Surface> CreateGPUSurface(int64_t view_id) override;
+
  private:
   bool valid_ = false;
   MetalDispatchTable metal_dispatch_table_;
@@ -41,9 +44,6 @@ class EmbedderSurfaceMetal final : public EmbedderSurface,
 
   // |EmbedderSurface|
   bool IsValid() const override;
-
-  // |EmbedderSurface|
-  std::unique_ptr<Surface> CreateGPUSurface(int64_t view_id) override;
 
   // |EmbedderSurface|
   sk_sp<GrDirectContext> CreateResourceContext() const override;

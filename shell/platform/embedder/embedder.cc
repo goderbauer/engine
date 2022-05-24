@@ -1627,14 +1627,16 @@ FlutterEngineResult FlutterEngineAddRenderSurface(
   };
 
   auto embedder_engine = reinterpret_cast<flutter::EmbedderEngine*>(engine);
-  embedder_engine->surface = std::make_unique<flutter::EmbedderSurfaceMetal>(
+  auto surface = std::make_unique<flutter::EmbedderSurfaceMetal>(
       const_cast<flutter::GPUMTLDeviceHandle>(config->metal.device),
       const_cast<flutter::GPUMTLCommandQueueHandle>(
           config->metal.present_command_queue),
       metal_dispatch_table, nullptr);
 
   embedder_engine->GetShell().AddSurface(
-      embedder_engine->surface->CreateGPUSurface(view_id), view_id);
+      surface->CreateGPUSurface(view_id), view_id);
+
+  embedder_engine->surface.push_back(std::move(surface));
 
   return kSuccess;
 }

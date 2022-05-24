@@ -7,6 +7,7 @@
 
 #include <memory>
 #include <unordered_map>
+#include <vector>
 
 #include "flutter/fml/macros.h"
 #include "flutter/shell/common/shell.h"
@@ -86,7 +87,7 @@ class EmbedderEngine {
 
   Shell& GetShell();
 
-  std::unique_ptr<EmbedderSurface> surface;
+  std::vector<std::unique_ptr<EmbedderSurface>> surface;
 
  private:
   const std::unique_ptr<EmbedderThreadHost> thread_host_;
