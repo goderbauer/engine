@@ -164,12 +164,11 @@ void Rasterizer::DrawLastLayerTree(
   //     DrawToSurface(*frame_timings_recorder, *last_layer_tree_);
 
   // // EndFrame should perform cleanups for the external_view_embedder.
-  // if (external_view_embedder_ && external_view_embedder_->GetUsedThisFrame())
-  // {
+  // if (external_view_embedder_ && external_view_embedder_->GetUsedThisFrame()) {
   //   bool should_resubmit_frame = ShouldResubmitFrame(raster_status);
+  //   external_view_embedder_->SetUsedThisFrame(false);
   //   external_view_embedder_->EndFrame(should_resubmit_frame,
   //                                     raster_thread_merger_);
-  //   external_view_embedder_->SetUsedThisFrame(false);
   // }
 }
 
@@ -225,9 +224,9 @@ RasterStatus Rasterizer::Draw(
   // EndFrame should perform cleanups for the external_view_embedder.
   if (surfaces_.at(0) && external_view_embedder_ &&
       external_view_embedder_->GetUsedThisFrame()) {
+    external_view_embedder_->SetUsedThisFrame(false);
     external_view_embedder_->EndFrame(should_resubmit_frame,
                                       raster_thread_merger_);
-    external_view_embedder_->SetUsedThisFrame(false);
   }
 
   // Consume as many pipeline items as possible. But yield the event loop

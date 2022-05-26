@@ -46,8 +46,8 @@ std::unique_ptr<Surface> EmbedderSurfaceMetal::CreateGPUSurface(int64_t view_id)
   FML_LOG(ERROR) << "EmbedderSurfaceMetal::CreateGPUSurface: " << view_id;
 
   const bool render_to_surface = !external_view_embedder_;
-  auto surface =
-      std::make_unique<GPUSurfaceMetalSkia>(this, main_context_, view_id, render_to_surface);
+  auto surface = std::make_unique<GPUSurfaceMetalSkia>(this, main_context_, view_id, MsaaSampleCount::kNone,
+                                                       render_to_surface);
 
   if (!surface->IsValid()) {
     return nullptr;

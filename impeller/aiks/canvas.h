@@ -18,6 +18,7 @@
 #include "impeller/geometry/path.h"
 #include "impeller/geometry/point.h"
 #include "impeller/geometry/vector.h"
+#include "impeller/geometry/vertices.h"
 #include "impeller/renderer/sampler_descriptor.h"
 #include "impeller/typographer/glyph_atlas.h"
 #include "impeller/typographer/text_frame.h"
@@ -89,6 +90,8 @@ class Canvas {
 
   void DrawTextFrame(TextFrame text_frame, Point position, Paint paint);
 
+  void DrawVertices(Vertices vertices, Entity::BlendMode mode, Paint paint);
+
   Picture EndRecordingAsPicture();
 
  private:
@@ -104,7 +107,8 @@ class Canvas {
 
   size_t GetStencilDepth() const;
 
-  void Save(bool create_subpass);
+  void Save(bool create_subpass,
+            Entity::BlendMode = Entity::BlendMode::kSourceOver);
 
   void RestoreClip();
 
