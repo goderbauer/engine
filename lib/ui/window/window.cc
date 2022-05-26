@@ -20,6 +20,9 @@ Window::Window(int64_t window_id, ViewportMetrics metrics)
 Window::~Window() {}
 
 void Window::UpdateWindowMetrics(const ViewportMetrics& metrics) {
+  if (metrics.view_id == -1) {
+    return;
+  }
   viewport_metrics_ = metrics;
 
   std::shared_ptr<tonic::DartState> dart_state = library_.dart_state().lock();

@@ -1633,8 +1633,8 @@ FlutterEngineResult FlutterEngineAddRenderSurface(
           config->metal.present_command_queue),
       metal_dispatch_table, nullptr);
 
-  embedder_engine->GetShell().AddSurface(
-      surface->CreateGPUSurface(view_id), view_id);
+  embedder_engine->GetShell().AddSurface(surface->CreateGPUSurface(view_id),
+                                         view_id);
 
   embedder_engine->surface.push_back(std::move(surface));
 

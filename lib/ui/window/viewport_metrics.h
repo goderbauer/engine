@@ -56,7 +56,7 @@ struct ViewportMetrics {
   std::vector<double> physical_display_features_bounds;
   std::vector<int> physical_display_features_type;
   std::vector<int> physical_display_features_state;
-  int64_t view_id;
+  int64_t view_id = -1;
 };
 
 bool operator==(const ViewportMetrics& a, const ViewportMetrics& b);

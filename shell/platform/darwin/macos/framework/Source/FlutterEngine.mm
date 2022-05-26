@@ -536,7 +536,8 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   //                                          size_t layers_count,          //
   //                                          void* user_data               //
   //                                       ) {
-  //   return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->Present(layers, layers_count);
+  //   return reinterpret_cast<flutter::FlutterCompositor*>(user_data)->Present(layers,
+  //   layers_count);
   // };
 
   // _compositor.avoid_backing_store_cache = true;

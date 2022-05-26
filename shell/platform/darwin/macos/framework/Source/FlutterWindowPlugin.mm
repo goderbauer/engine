@@ -96,6 +96,7 @@ static NSString* const kChannelName = @"flutter/window";
     [myWindow makeKeyAndOrderFront:nil];  // display window
     [_engine updateWindowMetrics:controller.flutterView id:controller.id];
     NSLog(@"New view ID: %@", @(controller.id));
+    result(@(controller.id));
     // });
   }
 }
