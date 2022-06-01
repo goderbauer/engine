@@ -72,7 +72,7 @@ class Pipeline {
       PipelineProduceResult result;
       if (continuation_) {
         result = continuation_(std::move(resource), trace_id_);
-        continuation_ = nullptr;
+        // continuation_ = nullptr;
         TRACE_EVENT_ASYNC_END0("flutter", "PipelineProduce", trace_id_);
         TRACE_FLOW_STEP("flutter", "PipelineItem", trace_id_);
       }
