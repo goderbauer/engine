@@ -584,6 +584,7 @@ static void CommonInit(FlutterViewController* controller) {
       .device_kind = deviceKind,
       // If a click triggered a synthesized kAdd, don't pass the buttons in that event.
       .buttons = phase == kAdd ? 0 : _mouseState.buttons,
+      .view_id = self.id,
   };
 
   if (phase == kPanZoomUpdate) {

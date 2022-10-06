@@ -817,6 +817,7 @@ typedef struct {
   double scale;
   /// The rotation of the pan/zoom in radians, where 0.0 is the initial angle.
   double rotation;
+  int64_t view_id;
 } FlutterPointerEvent;
 
 typedef enum {
