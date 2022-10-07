@@ -73,8 +73,10 @@ static NSString* const kChannelName = @"flutter/window";
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSLog(@">>> method %@", call.method);
   if ([call.method isEqualToString:@"new"]) {
+    CGFloat height = [[call.arguments firstObject] doubleValue];
+    CGFloat width = [[call.arguments lastObject] doubleValue];
     // dispatch_async(dispatch_get_main_queue(), ^{
-    NSRect graphicsRect = NSMakeRect(100.0, 350.0, 844.0, 626.0);
+    NSRect graphicsRect = NSMakeRect(400.0, 350.0, width, height);
     NSWindow* myWindow = [[NSWindow alloc]
         initWithContentRect:graphicsRect
                   styleMask:NSTitledWindowMask | NSClosableWindowMask | NSMiniaturizableWindowMask |
