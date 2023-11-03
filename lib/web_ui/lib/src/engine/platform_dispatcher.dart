@@ -709,8 +709,13 @@ class EnginePlatformDispatcher extends ui.PlatformDispatcher {
   ///    scheduling of frames.
   ///  * [RendererBinding], the Flutter framework class which manages layout and
   ///    painting.
-  @override
-  void render(ui.Scene scene, [ui.FlutterView? view]) {
+  void render(ui.Scene scene, { ui.FlutterView? view, ui.Size? size }) {
+    if (size != null && view is EngineFlutterView) {
+      view.dom.rootElement.style
+        ..width = '${size.width / view.devicePixelRatio}px'
+        ..height = '${size.height / view.devicePixelRatio}px';
+        // The hostElement of the app should reflow according to this new size.
+    }
     renderer.renderScene(scene);
   }
 

@@ -24,7 +24,7 @@ abstract class FlutterView {
   GestureSettings get gestureSettings;
   List<DisplayFeature> get displayFeatures;
   Display get display;
-  void render(Scene scene) => platformDispatcher.render(scene, this);
+  void render(Scene scene, { Size? size });
   void updateSemantics(SemanticsUpdate update) => platformDispatcher.updateSemantics(update);
 }
 
@@ -103,9 +103,6 @@ abstract class SingletonFlutterWindow extends FlutterView {
   String get defaultRouteName => platformDispatcher.defaultRouteName;
 
   void scheduleFrame() => platformDispatcher.scheduleFrame();
-
-  @override
-  void render(Scene scene) => platformDispatcher.render(scene, this);
 
   bool get semanticsEnabled => platformDispatcher.semanticsEnabled;
 
