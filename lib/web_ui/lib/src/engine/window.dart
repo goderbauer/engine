@@ -99,6 +99,17 @@ class EngineFlutterWindow extends ui.SingletonFlutterWindow implements EngineFlu
   BrowserHistory?
       _browserHistory; // Must be either SingleEntryBrowserHistory or MultiEntriesBrowserHistory.
 
+  @override
+  void render(ui.Scene scene, {ui.FlutterView? view, ui.Size? size}) {
+    // This render method probably needs to be owned by some ViewRenderer
+    // attribute of the view.
+    platformDispatcher.render(
+      scene,
+      view: this,
+      size: size,
+    );
+  }
+
   Future<void> _useSingleEntryBrowserHistory() async {
     // Recreate the browser history mode that's appropriate for the existing
     // history state.
