@@ -1302,6 +1302,11 @@ InferExternalViewEmbedderFromArgs(const FlutterCompositor* compositor,
           };
 
   flutter::EmbedderExternalViewEmbedder::PresentCallback present_callback;
+  if (c_present_callback != 0 && c_legacy_present_callback != 0) {
+    FML_LOG(ERROR) << "Only one presenting callbacks may be provided among "
+                      "`present_layers_callback` and `present_view_callback`.";
+    return {nullptr, true};
+  }
   if (c_present_callback) {
     present_callback = [c_present_callback, user_data = compositor->user_data](
                            const auto& layers, int64_t view_id) {
@@ -1315,15 +1320,23 @@ InferExternalViewEmbedderFromArgs(const FlutterCompositor* compositor,
       info.user_data = user_data;
       return c_present_callback(&info);
     };
-  } else {
+  } else if (c_legacy_present_callback) {
     present_callback = [c_legacy_present_callback,
                         user_data = compositor->user_data](const auto& layers,
                                                            int64_t view_id) {
       TRACE_EVENT0("flutter", "FlutterCompositorPresentLayers");
+      FML_DCHECK(view_id == kFlutterImplicitViewId)
+          << "The `present_layers_callback` can only be used to present to the "
+             "implicit view. To present to other views, use "
+             "`present_view_callback`.";
       return c_legacy_present_callback(
           const_cast<const FlutterLayer**>(layers.data()), layers.size(),
           user_data);
     };
+  } else {
+    FML_LOG(ERROR) << "A presenting callbacks must be provided among "
+                      "`present_layers_callback` and `present_view_callback`.";
+    return {nullptr, true};
   }
 
   return {std::make_unique<flutter::EmbedderExternalViewEmbedder>(
@@ -2190,19 +2203,27 @@ static FlutterEngineResult BuildViewportMetrics(
 FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineAddView(FLUTTER_API_SYMBOL(FlutterEngine)
                                              engine,
-                                         FlutterAddViewInfo* config) {
+                                         FlutterAddViewInfo* info) {
   if (engine == nullptr) {
     return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
   }
   flutter::ViewportMetrics metrics;
   FlutterEngineResult build_metrics_result =
-      BuildViewportMetrics(&metrics, config->metrics);
+      BuildViewportMetrics(&metrics, info->view_metrics);
   if (build_metrics_result != kSuccess) {
     return build_metrics_result;
   }
   flutter::EmbedderEngine* embedder_engine =
       reinterpret_cast<flutter::EmbedderEngine*>(engine);
-  embedder_engine->GetShell().AddView(config->view_id, metrics);
+  embedder_engine->GetShell().AddView(
+      info->view_id, metrics,
+      [callback = info->callback, user_data = info->user_data](bool success) {
+        FlutterAddViewResult result = {};
+        result.struct_size = sizeof(FlutterAddViewResult);
+        result.user_data = user_data;
+        result.success = success;
+        callback(&result);
+      });
 
   return kSuccess;
 }
@@ -2210,26 +2231,22 @@ FlutterEngineResult FlutterEngineAddView(FLUTTER_API_SYMBOL(FlutterEngine)
 FLUTTER_EXPORT
 FlutterEngineResult FlutterEngineRemoveView(FLUTTER_API_SYMBOL(FlutterEngine)
                                                 engine,
-                                            FlutterRemoveViewInfo* config) {
+                                            FlutterRemoveViewInfo* info) {
   if (engine == nullptr) {
     return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
   }
   flutter::EmbedderEngine* embedder_engine =
       reinterpret_cast<flutter::EmbedderEngine*>(engine);
-  embedder_engine->GetShell().RemoveView(config->view_id);
+  embedder_engine->GetShell().RemoveView(
+      info->view_id,
+      [callback = info->callback, user_data = info->user_data](bool success) {
+        FlutterRemoveViewResult result = {};
+        result.struct_size = sizeof(FlutterAddViewResult);
+        result.user_data = user_data;
+        result.success = success;
+        callback(&result);
+      });
 
-  return kSuccess;
-}
-
-FlutterEngineResult FlutterEngineRemoveRenderSurface(
-    FLUTTER_API_SYMBOL(FlutterEngine) engine,
-    int64_t view_id) {
-  if (engine == nullptr) {
-    return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
-  }
-  flutter::EmbedderEngine* embedder_engine =
-      reinterpret_cast<flutter::EmbedderEngine*>(engine);
-  embedder_engine->GetShell().RemoveView(view_id);
   return kSuccess;
 }
 
