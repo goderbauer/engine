@@ -1282,9 +1282,11 @@ InferExternalViewEmbedderFromArgs(const FlutterCompositor* compositor,
     FML_LOG(ERROR) << "Required compositor callbacks absent.";
     return {nullptr, true};
   }
-  // At least one present callback must be provided.
-  if (!c_present_callback && !c_legacy_present_callback) {
-    FML_LOG(ERROR) << "Required compositor presenting callbacks absent.";
+  // One and only one present callback must be provided.
+  if ((c_present_callback == 0) != (c_legacy_present_callback == 0)) {
+    FML_LOG(ERROR)
+        << "One and only one presenting callbacks must be provided "
+           "among `present_layers_callback` and `present_view_callback`.";
     return {nullptr, true};
   }
 
@@ -1315,15 +1317,21 @@ InferExternalViewEmbedderFromArgs(const FlutterCompositor* compositor,
       info.user_data = user_data;
       return c_present_callback(&info);
     };
-  } else {
+  } else if (c_legacy_present_callback) {
     present_callback = [c_legacy_present_callback,
                         user_data = compositor->user_data](const auto& layers,
                                                            int64_t view_id) {
       TRACE_EVENT0("flutter", "FlutterCompositorPresentLayers");
+      FML_DCHECK(view_id == kFlutterImplicitViewId)
+          << "The `present_layers_callback` can only be used to present to the "
+             "implicit view. To present to other views, use "
+             "`present_view_callback`.";
       return c_legacy_present_callback(
           const_cast<const FlutterLayer**>(layers.data()), layers.size(),
           user_data);
     };
+  } else {
+    FML_UNREACHABLE();
   }
 
   return {std::make_unique<flutter::EmbedderExternalViewEmbedder>(

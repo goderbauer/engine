@@ -2108,11 +2108,11 @@ void Shell::AddView(int64_t view_id,
                          viewport_metrics,                //
                          view_id,                         //
                          callback = std::move(callback)]() mutable {
-        bool result = false;
+        bool successful = false;
         if (engine) {
-          result = engine->AddView(view_id, viewport_metrics);
+          successful = engine->AddView(view_id, viewport_metrics);
         }
-        callback(result);
+        callback(successful);
       }));
 }
 
@@ -2131,10 +2131,11 @@ void Shell::RemoveView(int64_t view_id, RemoveViewCallback callback) {
                          rasterizer = rasterizer_->GetWeakPtr(),  //
                          view_id,                                 //
                          callback = std::move(callback)]() mutable {
-        bool result = false;
+        bool successful = false;
         if (engine) {
-          result = engine->RemoveView(view_id);
+          successful = engine->RemoveView(view_id);
         }
+        callback(successful);
         // Don't wait for the raster task here, which only cleans up memory and
         // does not affect functionality. Make sure it is done after Dart
         // removes the view to avoid receiving another rasterization request

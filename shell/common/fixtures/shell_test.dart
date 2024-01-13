@@ -504,6 +504,7 @@ void testReportViewIds() {
       nativeReportViewIdsCallback(PlatformDispatcher.instance.implicitView != null, viewIds);
     }
   };
+  notifyNative();
 }
 
 // Returns a list of [view_id 1, view_width 1, view_id 2, view_width 2, ...]
