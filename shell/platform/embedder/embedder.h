@@ -1798,9 +1798,9 @@ typedef struct {
   /// Callback invoked by the engine to composite the contents of each layer
   /// onto the screen.
   ///
-  /// Only one of `present_layers_callback` and `present_view_callback` may be
-  /// provided. Providing both is an error and engine initialization will
-  /// terminate.
+  /// One and only one of `present_layers_callback` and `present_view_callback`
+  /// may be provided. Providing both or neither is an error and engine
+  /// initialization will terminate.
   FlutterLayersPresentCallback present_layers_callback;
   /// Avoid caching backing stores provided by this compositor.
   bool avoid_backing_store_cache;
@@ -1810,9 +1810,9 @@ typedef struct {
   /// The argument |FlutterLayersPresentInfo| will be deallocated once the
   /// callback returns.
   ///
-  /// Only one of `present_layers_callback` and `present_view_callback` may be
-  /// provided. Providing both is an error and engine initialization will
-  /// terminate.
+  /// One and only one of `present_layers_callback` and `present_view_callback`
+  /// may be provided. Providing both or neither is an error and engine
+  /// initialization will terminate.
   FlutterViewPresentCallback present_view_callback;
 } FlutterCompositor;
 
