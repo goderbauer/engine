@@ -2207,6 +2207,9 @@ FlutterEngineResult FlutterEngineAddView(FLUTTER_API_SYMBOL(FlutterEngine)
   if (engine == nullptr) {
     return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
   }
+  if (info->callback == nullptr) {
+    return LOG_EMBEDDER_ERROR(kInvalidArguments, "A callback is required.");
+  }
   flutter::ViewportMetrics metrics;
   FlutterEngineResult build_metrics_result =
       BuildViewportMetrics(&metrics, info->view_metrics);
@@ -2234,6 +2237,9 @@ FlutterEngineResult FlutterEngineRemoveView(FLUTTER_API_SYMBOL(FlutterEngine)
                                             FlutterRemoveViewInfo* info) {
   if (engine == nullptr) {
     return LOG_EMBEDDER_ERROR(kInvalidArguments, "Engine handle was invalid.");
+  }
+  if (info->callback == nullptr) {
+    return LOG_EMBEDDER_ERROR(kInvalidArguments, "A callback is required.");
   }
   flutter::EmbedderEngine* embedder_engine =
       reinterpret_cast<flutter::EmbedderEngine*>(engine);
