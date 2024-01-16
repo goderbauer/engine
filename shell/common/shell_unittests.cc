@@ -4419,6 +4419,9 @@ TEST_F(ShellTest, ShellStartsWithImplicitView) {
   AddNativeCallback("NativeReportViewIdsCallback",
                     CREATE_NATIVE_ENTRY(nativeViewIdsCallback));
 
+  AddNativeCallback("NotifyNative",
+                    CREATE_NATIVE_ENTRY([](auto args) { /*Not used*/ }));
+
   PlatformViewNotifyCreated(shell.get());
   auto configuration = RunConfiguration::InferFromSettings(settings);
   configuration.SetEntrypoint("testReportViewIds");
