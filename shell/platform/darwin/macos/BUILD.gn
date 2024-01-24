@@ -108,6 +108,8 @@ source_set("flutter_framework_source") {
     "framework/Source/FlutterViewEngineProvider.h",
     "framework/Source/FlutterViewEngineProvider.mm",
     "framework/Source/FlutterViewProvider.h",
+    "framework/Source/FlutterWindowPlugin.h",
+    "framework/Source/FlutterWindowPlugin.mm",
     "framework/Source/KeyCodeMap.g.mm",
   ]
 

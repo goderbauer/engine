@@ -24,6 +24,7 @@
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterRenderer.h"
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterViewController_Internal.h"
 #import "flutter/shell/platform/darwin/macos/framework/Source/FlutterViewEngineProvider.h"
+#import "flutter/shell/platform/darwin/macos/framework/Source/FlutterWindowPlugin.h"
 
 @class FlutterEngineRegistrar;
 
@@ -754,7 +755,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 - (BOOL)addViewToEmbedderEngine:(FlutterViewId)viewId {
   FlutterAddViewInfo info{
       .view_id = viewId,
-      .callback = [](const FlutterAddViewResult* result){},
+      .callback = [](const FlutterAddViewResult* result) {},
   };
   FlutterEngineResult result = _embedderAPI.AddView(_engine, &info);
   return result == kSuccess;
@@ -763,7 +764,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
 - (BOOL)removeViewFromEmbedderEngine:(FlutterViewId)viewId {
   FlutterRemoveViewInfo info{
       .view_id = viewId,
-      .callback = [](const FlutterRemoveViewResult* result){},
+      .callback = [](const FlutterRemoveViewResult* result) {},
   };
   FlutterEngineResult result = _embedderAPI.RemoveView(_engine, &info);
   return result == kSuccess;
@@ -1171,6 +1172,7 @@ static void OnPlatformMessage(const FlutterPlatformMessage* message, FlutterEngi
   __weak FlutterEngine* weakSelf = self;
   [FlutterMouseCursorPlugin registerWithRegistrar:[self registrarForPlugin:@"mousecursor"]];
   [FlutterMenuPlugin registerWithRegistrar:[self registrarForPlugin:@"menu"]];
+  [FlutterWindowPlugin registerWithRegistrar:[self registrarForPlugin:@"window"] engine:weakSelf];
   _settingsChannel =
       [FlutterBasicMessageChannel messageChannelWithName:kFlutterSettingsChannel
                                          binaryMessenger:self.binaryMessenger
