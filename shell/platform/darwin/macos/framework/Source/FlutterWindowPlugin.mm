@@ -6,10 +6,26 @@
 #import "FlutterEngine_Internal.h"
 
 @interface MyWindow : NSWindow
+@property(nonatomic, assign) BOOL becomeKey;
 @end
 @implementation MyWindow
+- (id)initWithContentRect:(NSRect)contentRect
+                styleMask:(NSWindowStyleMask)style
+                  backing:(NSBackingStoreType)backingStoreType
+                    defer:(BOOL)flag
+             canBecomeKey:(BOOL)canBecomeKey {
+  self = [super initWithContentRect:contentRect
+                          styleMask:style
+                            backing:backingStoreType
+                              defer:flag];
+  if (self) {
+    self.becomeKey = canBecomeKey;
+  }
+  return self;
+}
+
 - (BOOL)canBecomeKeyWindow {
-  return YES;
+  return _becomeKey;
 }
 @end
 
@@ -53,6 +69,7 @@ static NSString* const kChannelName = @"flutter/window";
     double dx = NSMinX(parentContentRect) + [windowSpec[@"offsetX"] doubleValue];
     NSRect graphicsRect = NSMakeRect(dx, dy, width, height);
     NSLog(@">>> rect %@", NSStringFromRect(graphicsRect));
+    NSNumber* pointerEvents = windowSpec[@"pointerEvents"];
 
     MyWindow* window = [[MyWindow alloc]
         initWithContentRect:graphicsRect
@@ -64,7 +81,8 @@ static NSString* const kChannelName = @"flutter/window";
                     //                                                          |
                     //                                                          NSWindowStyleMaskResizable
                     backing:NSBackingStoreBuffered
-                      defer:NO];
+                      defer:NO
+               canBecomeKey:pointerEvents.boolValue];
     NSRect windowFrame = [window frame];
     FlutterViewController* viewController = [[FlutterViewController alloc] initWithEngine:_engine
                                                                                   nibName:nil
@@ -75,7 +93,11 @@ static NSString* const kChannelName = @"flutter/window";
     [window makeKeyAndOrderFront:self];
     [window setReleasedWhenClosed:NO];  // Do not close entire app when window is closed.
                                         //    [window setTitle:@"Hello"];
-                                        //    [window setIgnoresMouseEvents:YES];
+
+    if (!pointerEvents.boolValue) {
+      [window setIgnoresMouseEvents:YES];
+    }
+    //    ;
     [parentWindow addChildWindow:window ordered:NSWindowAbove];
 
     _windows[@(viewController.viewId)] = window;
