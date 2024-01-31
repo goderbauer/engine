@@ -56,6 +56,12 @@ static NSString* const kChannelName = @"flutter/window";
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
   NSLog(@">>> method %@", call.method);
   if ([call.method isEqualToString:@"create"]) {
+    for (NSScreen* screen in [NSScreen screens]) {
+      NSLog(@"--- Screen: %@", [screen deviceDescription]);
+      NSLog(@"Frame: %@", NSStringFromRect([screen frame]));
+      NSLog(@"Frame: %@", NSStringFromRect([screen visibleFrame]));
+    }
+
     NSLog(@">>> CREATE");
     NSDictionary* windowSpec = call.arguments;
     NSLog(@">>> windowSpec %@", windowSpec);
