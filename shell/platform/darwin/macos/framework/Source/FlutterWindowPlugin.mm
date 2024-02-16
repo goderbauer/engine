@@ -77,18 +77,14 @@ static NSString* const kChannelName = @"flutter/window";
     NSLog(@">>> rect %@", NSStringFromRect(graphicsRect));
     NSNumber* pointerEvents = windowSpec[@"pointerEvents"];
 
-    MyWindow* window = [[MyWindow alloc]
-        initWithContentRect:graphicsRect
-                  styleMask:NSWindowStyleMaskBorderless
-                    //                         NSWindowStyleMaskTitled |
-                    //                                                          NSWindowStyleMaskClosable
-                    //                                                          |
-                    //                                                          NSWindowStyleMaskMiniaturizable
-                    //                                                          |
-                    //                                                          NSWindowStyleMaskResizable
-                    backing:NSBackingStoreBuffered
-                      defer:NO
-               canBecomeKey:pointerEvents.boolValue];
+    MyWindow* window =
+        [[MyWindow alloc] initWithContentRect:graphicsRect
+                                    styleMask:  // NSWindowStyleMaskBorderless
+                                        NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                                        NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable
+                                      backing:NSBackingStoreBuffered
+                                        defer:NO
+                                 canBecomeKey:pointerEvents.boolValue];
     NSRect windowFrame = [window frame];
     FlutterViewController* viewController = [[FlutterViewController alloc] initWithEngine:_engine
                                                                                   nibName:nil
@@ -99,6 +95,12 @@ static NSString* const kChannelName = @"flutter/window";
     [window makeKeyAndOrderFront:self];
     [window setReleasedWhenClosed:NO];  // Do not close entire app when window is closed.
                                         //    [window setTitle:@"Hello"];
+
+    NSLog(@">>> contentview %@", [window contentView]);
+    NSLog(@">>> contentview frame %@", NSStringFromRect([[window contentView] frame]));
+    NSLog(@">>> window frame %@", NSStringFromRect([window frame]));
+    NSLog(@">>> window contentSize %@",
+          NSStringFromRect([window contentRectForFrameRect:[window frame]]));
 
     if (!pointerEvents.boolValue) {
       [window setIgnoresMouseEvents:YES];
@@ -115,6 +117,8 @@ static NSString* const kChannelName = @"flutter/window";
     FlutterViewId viewId = [call.arguments longLongValue];
     NSWindow* window = _windows[@(viewId)];
     NSLog(@">>> window %@", window);
+    NSLog(@">>> contentview %@", [window contentView]);
+    NSLog(@">>> superview %@", [[window contentView] superview]);
     [_windows removeObjectForKey:@(viewId)];
     [window close];
     NSLog(@">>> disposed %lld", viewId);
